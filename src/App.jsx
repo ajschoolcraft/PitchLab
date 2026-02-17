@@ -1,19 +1,37 @@
-import { Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
-import Landing from './pages/Landing'
-import Auth from './pages/Auth'
-import Dashboard from './pages/Dashboard'
-import Record from './pages/Record'
+import { supabase } from './lib/supabase'
 
-export default function App() {
+function App() {
+  const testConnection = async () => {
+    console.log('Testing connection...')
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .limit(1)
+    
+    if (error) {
+      console.log('❌ Connection error:', error)
+    } else {
+      console.log('✅ Connected to Supabase!', data)
+    }
+  }
+
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/record" element={<Record />} />
-      </Routes>
-    </AuthProvider>
+    <div style={{ padding: '50px', fontFamily: 'Arial' }}>
+      <h1>AI Presentation Coach</h1>
+      <p>Testing Supabase Connection</p>
+      <button 
+        onClick={testConnection}
+        style={{ 
+          padding: '10px 20px', 
+          fontSize: '16px',
+          cursor: 'pointer'
+        }}
+      >
+        Test Supabase Connection
+      </button>
+    </div>
   )
 }
+
+export default App
