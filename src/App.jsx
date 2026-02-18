@@ -1,3 +1,9 @@
+import { Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import Landing from './pages/Landing'
+import Auth from './pages/Auth'
+import Dashboard from './pages/Dashboard'
+import Record from './pages/Record'
 import { supabase } from './lib/supabase'
 
 function App() {
@@ -17,20 +23,42 @@ function App() {
   }
 
   return (
-    <div style={{ padding: '50px', fontFamily: 'Arial' }}>
-      <h1>AI Presentation Coach</h1>
-      <p>Testing Supabase Connection</p>
-      <button 
-        onClick={testConnection}
-        style={{ 
-          padding: '10px 20px', 
-          fontSize: '16px',
-          cursor: 'pointer'
-        }}
-      >
-        Test Supabase Connection
-      </button>
-    </div>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/record" element={<Record />} />
+      </Routes>
+
+      {/* Test Connection Button - Can remove this later */}
+      <div style={{ 
+        position: 'fixed', 
+        bottom: '20px', 
+        right: '20px',
+        padding: '20px',
+        backgroundColor: 'white',
+        border: '2px solid #ccc',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+      }}>
+        <h3 style={{ margin: '0 0 10px 0', fontSize: '14px' }}>Dev Tools</h3>
+        <button 
+          onClick={testConnection}
+          style={{ 
+            padding: '8px 16px', 
+            fontSize: '14px',
+            cursor: 'pointer',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px'
+          }}
+        >
+          Test Supabase Connection
+        </button>
+      </div>
+    </AuthProvider>
   )
 }
 
