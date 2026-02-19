@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 export default function Auth() {
   const navigate = useNavigate()
@@ -20,35 +21,82 @@ export default function Auth() {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-
+  
     // Basic validation
     if (!formData.email || !formData.password) {
       setError('Email and password are required')
       return
     }
-
+  
     if (isSignUp && formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       return
     }
-
+  
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters')
       return
     }
-
+  
     setLoading(true)
-    
-    // Simulate auth delay
-    setTimeout(() => {
+  
+    try {
+      if (isSignUp) {
+        // SIGN UP
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+        })
+  
+        if (authError) throw authError
+  
+        // Create profile
+        if (authData.user) {
+          console.log('Auth user created:', authData.user.id)
+          console.log('Current auth.uid:', (await supabase.auth.getUser()).data.user?.id)
+          
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authData.user.id,
+              email: authData.user.email,
+              full_name: formData.email.split('@')[0],
+            })
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError)
+            throw profileError
+          }
+  
+  console.log('Profile created successfully!')
+}
+  
+        alert('Account created! You can now sign in.')
+        setIsSignUp(false) // Switch to login view
+        setFormData({ email: formData.email, password: '', confirmPassword: '' })
+  
+      } else {
+        // LOGIN
+        const { data, error: loginError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        })
+  
+        if (loginError) throw loginError
+  
+        // Success! Navigate to dashboard
+        navigate('/dashboard')
+      }
+  
+    } catch (error) {
+      setError(error.message)
+      console.error('Auth error:', error)
+    } finally {
       setLoading(false)
-      // After Supabase keys arrive, we'll add real auth here
-      // For now, just navigate to dashboard
-      navigate('/dashboard')
-    }, 500)
+    }
   }
 
   const styles = {
