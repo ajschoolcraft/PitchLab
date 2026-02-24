@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
 // Create the context
 export const AuthContext = createContext()
@@ -10,48 +11,53 @@ export function AuthProvider({ children }) {
 
   // Check if user is logged in on app start
   useEffect(() => {
-    const checkUser = () => {
-      // Check localStorage for saved user
-      const savedUser = localStorage.getItem('currentUser')
-      if (savedUser) {
-        setUser(JSON.parse(savedUser))
-      }
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
       setLoading(false)
-    }
+    })
 
-    checkUser()
+    // Listen for auth changes (login, logout, Google login, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null)
+      }
+    )
+
+    // Cleanup subscription on unmount
+    return () => subscription.unsubscribe()
   }, [])
 
   // Sign up function
-  const signUp = (email, password) => {
-    const newUser = { email, id: Date.now() }
-    localStorage.setItem('currentUser', JSON.stringify(newUser))
-    setUser(newUser)
-    return { user: newUser, error: null }
+  const signUp = async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+    return { user: data.user, error }
   }
 
   // Sign in function
-  const signIn = (email, password) => {
-    const savedUser = localStorage.getItem('currentUser')
-    if (savedUser) {
-      const user = JSON.parse(savedUser)
-      if (user.email === email) {
-        setUser(user)
-        return { user, error: null }
-      }
+  const signIn = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (data.user) {
+      setUser(data.user)
     }
-    return { user: null, error: 'Invalid credentials' }
+    return { user: data.user, error }
   }
 
   // Logout function
-  const logout = () => {
-    localStorage.removeItem('currentUser')
+  const logout = async () => {
+    await supabase.auth.signOut()
     setUser(null)
   }
 
   return (
     <AuthContext.Provider value={{ user, loading, signUp, signIn, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   )
 }
