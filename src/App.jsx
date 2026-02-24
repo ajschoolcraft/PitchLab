@@ -4,6 +4,7 @@ import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Record from './pages/Record'
+import ScriptGenerator from './pages/ScriptGenerator'
 import { supabase } from './lib/supabase'
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/record" element={<Record />} />
+        <Route path="/script-generator" element={<ScriptGenerator />} />
       </Routes>
 
       {/* Test Connection Button - Can remove this later */}
