@@ -31,7 +31,7 @@ export default function Auth() {
     }
 
     if (isSignUp && formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
+      setErrr('Passwords do not match')
       return
     }
 
