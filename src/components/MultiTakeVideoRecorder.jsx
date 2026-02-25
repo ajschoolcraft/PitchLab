@@ -1,14 +1,355 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+// ShareInstructions Component - Embedded
+const ShareInstructions = ({ filename, onBack }) => {
+  const [selectedPlatform, setSelectedPlatform] = useState(null);
+
+  const platforms = [
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      icon: '📘',
+      color: '#1877F2',
+      steps: [
+        'Open the Facebook app on your phone or go to facebook.com',
+        'Tap "What\'s on your mind?" at the top of your feed',
+        'Tap "Photo/Video"',
+        `Select ${filename} from your Downloads or Photos`,
+        'Add a caption describing your video',
+        'Choose your audience (Public, Friends, or Custom)',
+        'Tap "Post" to share your video'
+      ],
+      tips: [
+        'For best results, keep your video under 60 seconds',
+        'Add hashtags to increase visibility',
+        'Tag relevant people or pages'
+      ]
+    },
+    {
+      id: 'instagram',
+      name: 'Instagram',
+      icon: '📷',
+      color: '#E4405F',
+      steps: [
+        'Open the Instagram app on your phone',
+        'Tap the "+" icon at the bottom center',
+        'Tap "Post" (or "Reel" for short videos)',
+        `Select ${filename} from your Camera Roll or Downloads`,
+        'Tap "Next" to add filters or edit',
+        'Tap "Next" again to add a caption',
+        'Add hashtags (e.g., #entrepreneur #business)',
+        'Tap "Share" to post your video'
+      ],
+      tips: [
+        'Instagram videos should be under 60 seconds for feed posts',
+        'Use Reels for videos up to 90 seconds for better reach',
+        'Add 3-5 relevant hashtags',
+        'Post during peak hours (lunch time or evenings)'
+      ]
+    },
+    {
+      id: 'tiktok',
+      name: 'TikTok',
+      icon: '🎵',
+      color: '#000000',
+      steps: [
+        'Open the TikTok app on your phone',
+        'Tap the "+" button at the bottom center',
+        'Tap "Upload" in the bottom right corner',
+        `Select ${filename} from your gallery`,
+        'Trim or edit your video if needed',
+        'Tap "Next"',
+        'Add a caption and hashtags (e.g., #SmallBusiness #Entrepreneur)',
+        'Choose who can view your video',
+        'Tap "Post" to share'
+      ],
+      tips: [
+        'TikTok videos should be 15-60 seconds for best performance',
+        'Use trending sounds if relevant',
+        'Add text overlays for key points',
+        'Post consistently for better algorithm performance'
+      ]
+    },
+    {
+      id: 'youtube',
+      name: 'YouTube',
+      icon: '▶️',
+      color: '#FF0000',
+      steps: [
+        'Go to youtube.com and sign in',
+        'Click the camera icon (+ Create) in the top right',
+        'Click "Upload video"',
+        `Click "SELECT FILES" and choose ${filename}`,
+        'Add a title (make it descriptive and searchable)',
+        'Write a description with keywords',
+        'Add relevant tags',
+        'Choose a thumbnail (or upload a custom one)',
+        'Set visibility: Public, Unlisted, or Private',
+        'Click "Publish" when ready'
+      ],
+      tips: [
+        'Write a detailed description with keywords for SEO',
+        'Add 5-10 relevant tags',
+        'Create a custom thumbnail for better click-through rate',
+        'Add your video to relevant playlists',
+        'Share the link on other social media platforms'
+      ]
+    }
+  ];
+
+  const shareStyles = {
+    container: {
+      padding: '20px',
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '12px',
+      position: 'relative',
+    },
+    title: {
+      fontSize: '24px',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: '#333',
+      flex: 1,
+    },
+    dashboardButton: {
+      position: 'absolute',
+      right: 0,
+      backgroundColor: '#6c757d',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '8px 16px',
+      fontSize: '14px',
+      fontWeight: '600',
+      cursor: 'pointer',
+    },
+    subtitle: {
+      fontSize: '16px',
+      color: '#666',
+      textAlign: 'center',
+      marginBottom: '24px',
+      lineHeight: '1.5',
+    },
+    platformGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+      gap: '12px',
+      marginBottom: '24px',
+    },
+    platformButton: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '20px',
+      backgroundColor: 'white',
+      border: '3px solid',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      transition: 'all 0.3s',
+      fontSize: '16px',
+      fontWeight: '600',
+    },
+    platformIcon: {
+      fontSize: '40px',
+    },
+    platformName: {
+      fontSize: '16px',
+    },
+    backButton: {
+      backgroundColor: '#6c757d',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '10px 20px',
+      fontSize: '14px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      marginBottom: '20px',
+    },
+    platformHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '16px',
+      marginBottom: '20px',
+      paddingBottom: '16px',
+      borderBottom: '2px solid #e0e0e0',
+    },
+    platformIconLarge: {
+      fontSize: '48px',
+    },
+    platformTitle: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      color: '#333',
+      margin: 0,
+    },
+    section: {
+      marginBottom: '20px',
+    },
+    sectionTitle: {
+      fontSize: '16px',
+      fontWeight: '600',
+      color: '#333',
+      marginBottom: '10px',
+    },
+    stepsList: {
+      paddingLeft: '24px',
+      margin: 0,
+    },
+    step: {
+      fontSize: '15px',
+      color: '#444',
+      lineHeight: '1.7',
+      marginBottom: '10px',
+    },
+    tipsList: {
+      paddingLeft: '24px',
+      margin: 0,
+    },
+    tip: {
+      fontSize: '14px',
+      color: '#666',
+      lineHeight: '1.6',
+      marginBottom: '8px',
+    },
+    filenameReminder: {
+      backgroundColor: '#e3f2fd',
+      border: '1px solid #90caf9',
+      borderRadius: '8px',
+      padding: '16px',
+      marginTop: '20px',
+      marginBottom: '20px',
+      fontSize: '14px',
+      lineHeight: '1.6',
+    },
+    doneButton: {
+      backgroundColor: '#28a745',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '12px 24px',
+      fontSize: '16px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      width: '100%',
+      marginBottom: '12px',
+    },
+    mainBackButton: {
+      backgroundColor: '#6c757d',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      padding: '12px 24px',
+      fontSize: '16px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      width: '100%',
+    },
+  };
+
+  return (
+    <div style={shareStyles.container}>
+      <div style={shareStyles.header}>
+        <h2 style={shareStyles.title}>📤 Share Your Video</h2>
+        <button onClick={() => window.location.href = '/dashboard'} style={shareStyles.dashboardButton}>
+          Dashboard
+        </button>
+      </div>
+      <p style={shareStyles.subtitle}>
+        Choose a platform below to see step-by-step instructions for uploading your video.
+      </p>
+
+      {!selectedPlatform ? (
+        <>
+          <div style={shareStyles.platformGrid}>
+            {platforms.map((platform) => (
+              <button
+                key={platform.id}
+                onClick={() => setSelectedPlatform(platform)}
+                style={{
+                  ...shareStyles.platformButton,
+                  borderColor: platform.color,
+                }}
+              >
+                <span style={shareStyles.platformIcon}>{platform.icon}</span>
+                <span style={shareStyles.platformName}>{platform.name}</span>
+              </button>
+            ))}
+          </div>
+          <button onClick={onBack} style={shareStyles.mainBackButton}>
+            Back to Recorder
+          </button>
+        </>
+      ) : (
+        <div>
+          <button onClick={() => setSelectedPlatform(null)} style={shareStyles.backButton}>
+            ← Back to Platforms
+          </button>
+
+          <div style={shareStyles.platformHeader}>
+            <span style={shareStyles.platformIconLarge}>{selectedPlatform.icon}</span>
+            <h3 style={shareStyles.platformTitle}>How to Upload to {selectedPlatform.name}</h3>
+          </div>
+
+          <div style={shareStyles.section}>
+            <h4 style={shareStyles.sectionTitle}>📝 Step-by-Step Instructions:</h4>
+            <ol style={shareStyles.stepsList}>
+              {selectedPlatform.steps.map((step, index) => (
+                <li key={index} style={shareStyles.step}>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div style={shareStyles.section}>
+            <h4 style={shareStyles.sectionTitle}>💡 Pro Tips:</h4>
+            <ul style={shareStyles.tipsList}>
+              {selectedPlatform.tips.map((tip, index) => (
+                <li key={index} style={shareStyles.tip}>
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div style={shareStyles.filenameReminder}>
+            <strong>📁 Your video file:</strong> {filename}
+            <br />
+            <span style={{ fontSize: '13px', color: '#666', fontStyle: 'italic' }}>
+              Look for this file in your Downloads folder or Camera Roll
+            </span>
+          </div>
+
+          <button onClick={() => setSelectedPlatform(null)} style={shareStyles.doneButton}>
+            Done - Back to Platforms
+          </button>
+          <button onClick={onBack} style={shareStyles.mainBackButton}>
+            Back to Recorder
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main MultiTakeVideoRecorder Component
 const MultiTakeVideoRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [error, setError] = useState(null);
-  const [takes, setTakes] = useState([]); // Array of recorded takes
+  const [takes, setTakes] = useState([]);
   const [selectedTake, setSelectedTake] = useState(null);
   const [showDeletePrompt, setShowDeletePrompt] = useState(false);
   const [downloadCounter, setDownloadCounter] = useState(1);
+  const [showShareInstructions, setShowShareInstructions] = useState(false);
+  const [lastDownloadedFilename, setLastDownloadedFilename] = useState('');
 
   const videoPreviewRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -59,7 +400,7 @@ const MultiTakeVideoRecorder = () => {
     
     const options = { 
       mimeType: 'video/webm;codecs=vp8,opus',
-      videoBitsPerSecon: 2500000
+      videoBitsPerSecond: 2500000
     };
 
     try {
@@ -75,7 +416,6 @@ const MultiTakeVideoRecorder = () => {
         const blob = new Blob(chunksRef.current, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
         
-        // Add new take to the list
         const newTake = {
           id: Date.now(),
           url: url,
@@ -133,7 +473,6 @@ const MultiTakeVideoRecorder = () => {
       return;
     }
 
-    // Generate filename: PresentationCoach_001.webm
     const filename = `PresentationCoach_${String(downloadCounter).padStart(3, '0')}.webm`;
     
     const a = document.createElement('a');
@@ -141,27 +480,27 @@ const MultiTakeVideoRecorder = () => {
     a.download = filename;
     a.click();
 
-    // Increment and save counter
     const newCounter = downloadCounter + 1;
     setDownloadCounter(newCounter);
     localStorage.setItem('presentationCoachCounter', newCounter.toString());
+    
+    // Show share instructions after download
+    setLastDownloadedFilename(filename);
+    setShowShareInstructions(true);
   };
 
   // Download and delete other takes
   const downloadAndDeleteOthers = () => {
     if (!selectedTake) return;
 
-    // Download the selected take
     downloadTake(selectedTake, false);
 
-    // Delete all other takes
     takes.forEach(take => {
       if (take.id !== selectedTake.id) {
         URL.revokeObjectURL(take.url);
       }
     });
 
-    // Keep only the downloaded take
     setTakes([selectedTake]);
     setShowDeletePrompt(false);
   };
@@ -209,15 +548,34 @@ const MultiTakeVideoRecorder = () => {
       }
       takes.forEach(take => URL.revokeObjectURL(take.url));
       if (timerRef.current) {
-        clearInterval(timerRef.current);
+        clearInterval(timerRef);
       }
     };
   }, [takes]);
 
+  // If showing share instructions, render that instead
+  if (showShareInstructions) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.card}>
+          <ShareInstructions 
+            filename={lastDownloadedFilename} 
+            onBack={() => setShowShareInstructions(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>🎥 Multi-Take Video Recorder</h2>
+        <div style={styles.header}>
+          <h2 style={styles.title}>🎥 Multi-Take Video Recorder</h2>
+          <button onClick={() => window.location.href = '/dashboard'} style={styles.dashboardButton}>
+            Dashboard
+          </button>
+        </div>
         
         {error && (
           <div style={styles.error}>
@@ -225,14 +583,12 @@ const MultiTakeVideoRecorder = () => {
           </div>
         )}
 
-        {/* Takes Counter */}
         {takes.length > 0 && (
           <div style={styles.takesCounter}>
             📹 {takes.length} take{takes.length !== 1 ? 's' : ''} recorded
           </div>
         )}
 
-        {/* Permission Section */}
         {!permissionGranted && takes.length === 0 && (
           <div style={styles.permissionSection}>
             <p style={styles.description}>
@@ -245,7 +601,6 @@ const MultiTakeVideoRecorder = () => {
           </div>
         )}
 
-        {/* Recording Section */}
         {permissionGranted && !selectedTake && (
           <div style={styles.recordingSection}>
             <video
@@ -283,7 +638,6 @@ const MultiTakeVideoRecorder = () => {
           </div>
         )}
 
-        {/* Playback Section with Takes List */}
         {selectedTake && (
           <div style={styles.playbackSection}>
             <video
@@ -297,7 +651,6 @@ const MultiTakeVideoRecorder = () => {
               <span style={styles.timestamp}>{selectedTake.timestamp}</span>
             </div>
 
-            {/* All Takes List */}
             {takes.length > 1 && (
               <div style={styles.takesList}>
                 <h3 style={styles.takesListTitle}>All Takes:</h3>
@@ -349,7 +702,6 @@ const MultiTakeVideoRecorder = () => {
           </div>
         )}
 
-        {/* Delete Prompt Modal */}
         {showDeletePrompt && (
           <div style={styles.modal}>
             <div style={styles.modalContent}>
@@ -402,12 +754,32 @@ const styles = {
     padding: '24px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '20px',
+  },
   title: {
     fontSize: '24px',
     fontWeight: 'bold',
-    marginBottom: '20px',
     textAlign: 'center',
     color: '#333',
+    flex: 1,
+  },
+  dashboardButton: {
+    position: 'absolute',
+    top: '24px',
+    right: '24px',
+    backgroundColor: '#6c757d',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '8px 16px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
   },
   takesCounter: {
     backgroundColor: '#e3f2fd',
