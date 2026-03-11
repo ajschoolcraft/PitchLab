@@ -25,14 +25,13 @@ export default function Auth() {
     e.preventDefault()
     setError('')
   
-    // Basic validation
     if (!formData.email || !formData.password) {
       setError('Email and password are required')
       return
     }
   
     if (isSignUp && formData.password !== formData.confirmPassword) {
-      setErrr('Passwords do not match')
+      setError('Passwords do not match')
       return
     }
   
@@ -45,7 +44,6 @@ export default function Auth() {
   
     try {
       if (isSignUp) {
-        // SIGN UP
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -53,7 +51,6 @@ export default function Auth() {
       
         if (authError) throw authError
       
-        // Profile is created automatically by database trigger
         console.log('User created:', authData.user?.id)
       
         alert('Account created! You can now sign in.')
@@ -61,7 +58,6 @@ export default function Auth() {
         setFormData({ email: formData.email, password: '', confirmPassword: '' })
   
       } else {
-        // LOGIN
         const { data, error: loginError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -69,7 +65,6 @@ export default function Auth() {
   
         if (loginError) throw loginError
   
-        // Success! Navigate to dashboard
         navigate('/dashboard')
       }
   
@@ -155,11 +150,6 @@ export default function Auth() {
       transition: 'border-color 0.3s ease',
       boxSizing: 'border-box',
     },
-    inputFocus: {
-      borderColor: '#3b82f6',
-      boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
-      outline: 'none',
-    },
     error: {
       backgroundColor: '#fee2e2',
       color: '#dc2626',
@@ -180,11 +170,8 @@ export default function Auth() {
       marginTop: '8px',
     },
     buttonPrimary: {
-      backgroundColor: '#3b82f6',
+      backgroundColor: '#FF9500',
       color: 'white',
-    },
-    buttonPrimaryHover: {
-      backgroundColor: '#2563eb',
     },
     buttonDisabled: {
       backgroundColor: '#9ca3af',
@@ -219,7 +206,7 @@ export default function Auth() {
     toggleButton: {
       background: 'none',
       border: 'none',
-      color: '#3b82f6',
+      color: '#FF9500',
       cursor: 'pointer',
       fontSize: '14px',
       fontWeight: '600',
@@ -232,7 +219,6 @@ export default function Auth() {
   return (
     <div style={styles.container}>
       <div style={styles.formWrapper}>
-        {/* Header */}
         <div style={styles.header}>
           <h1 style={styles.title}>
             {isSignUp ? 'Create Account' : 'Welcome Back'}
@@ -244,12 +230,9 @@ export default function Auth() {
           </p>
         </div>
 
-        {/* Error Message */}
         {error && <div style={styles.error}>{error}</div>}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} style={styles.form}>
-          {/* Email */}
           <div style={styles.formGroup}>
             <label htmlFor="email" style={styles.label}>Email</label>
             <input
@@ -264,7 +247,6 @@ export default function Auth() {
             />
           </div>
 
-          {/* Password */}
           <div style={styles.formGroup}>
             <label htmlFor="password" style={styles.label}>Password</label>
             <input
@@ -279,7 +261,6 @@ export default function Auth() {
             />
           </div>
 
-          {/* Confirm Password (Sign Up Only) */}
           {isSignUp && (
             <div style={styles.formGroup}>
               <label htmlFor="confirmPassword" style={styles.label}>
@@ -298,7 +279,6 @@ export default function Auth() {
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -314,14 +294,12 @@ export default function Auth() {
           </button>
         </form>
 
-        {/* Divider */}
         <div style={styles.divider}>
           <div style={styles.dividerLine}></div>
           <span style={styles.dividerText}>or</span>
           <div style={styles.dividerLine}></div>
         </div>
 
-        {/* Google Sign-In Button */}
         <button
           type="button"
           onClick={handleGoogleSignIn}
@@ -345,7 +323,6 @@ export default function Auth() {
           Continue with Google
         </button>
               
-        {/* Toggle Between Sign Up and Login */}
         <div style={styles.toggleContainer}>
           <p style={styles.toggleText}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}
