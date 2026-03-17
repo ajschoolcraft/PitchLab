@@ -1,6 +1,11 @@
+import { useState } from 'react'
 import MultiTakeVideoRecorder from '../components/MultiTakeVideoRecorder'
+import Teleprompter from '../components/Teleprompter'
 
 export default function Record() {
+  const [showTeleprompter, setShowTeleprompter] = useState(false)
+  const [script, setScript] = useState('')
+
   return (
     <>
       <style>{`
@@ -39,6 +44,80 @@ export default function Record() {
           color: #6b7280;
           line-height: 1.5;
         }
+
+        /* Teleprompter Card */
+        .pc-record-tp-card {
+          background: #1a1a1a;
+          border-radius: 16px;
+          padding: 24px;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+        }
+        .pc-record-tp-info {
+          flex: 1;
+        }
+        .pc-record-tp-title {
+          font-size: 17px;
+          font-weight: 700;
+          color: white;
+          margin-bottom: 4px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .pc-record-tp-desc {
+          font-size: 14px;
+          color: rgba(255,255,255,0.5);
+          line-height: 1.4;
+        }
+        .pc-record-tp-btn {
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #FF9500, #FF6B00);
+          border: none;
+          border-radius: 10px;
+          color: white;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.2s;
+          white-space: nowrap;
+          box-shadow: 0 4px 16px rgba(255, 149, 0, 0.3);
+        }
+        .pc-record-tp-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 24px rgba(255, 149, 0, 0.4);
+        }
+
+        /* Script Input for Teleprompter */
+        .pc-record-tp-input {
+          width: 100%;
+          padding: 14px 16px;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          color: white;
+          font-size: 14px;
+          font-family: inherit;
+          resize: vertical;
+          min-height: 80px;
+          margin-top: 12px;
+          box-sizing: border-box;
+          transition: all 0.2s;
+        }
+        .pc-record-tp-input:focus {
+          outline: none;
+          border-color: #FF9500;
+          box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.1);
+        }
+        .pc-record-tp-input::placeholder {
+          color: rgba(255,255,255,0.25);
+        }
+
+        /* Tips */
         .pc-record-tips {
           background: white;
           border-radius: 16px;
@@ -76,6 +155,8 @@ export default function Record() {
           .pc-record { padding: 24px 16px 60px; }
           .pc-record-title { font-size: 26px; }
           .pc-record-tips-list { grid-template-columns: 1fr; }
+          .pc-record-tp-card { flex-direction: column; text-align: center; }
+          .pc-record-tp-btn { width: 100%; }
         }
       `}</style>
 
@@ -89,6 +170,32 @@ export default function Record() {
             </p>
           </div>
 
+          {/* Teleprompter Card */}
+          <div className="pc-record-tp-card">
+            <div className="pc-record-tp-info">
+              <p className="pc-record-tp-title">
+                📖 Teleprompter
+              </p>
+              <p className="pc-record-tp-desc">
+                Paste your script below and launch the teleprompter while you record.
+              </p>
+              <textarea
+                className="pc-record-tp-input"
+                placeholder="Paste your script here..."
+                value={script}
+                onChange={(e) => setScript(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <button 
+              className="pc-record-tp-btn"
+              onClick={() => setShowTeleprompter(true)}
+            >
+              Launch ▶
+            </button>
+          </div>
+
+          {/* Tips */}
           <div className="pc-record-tips">
             <p className="pc-record-tips-title">
               💡 Quick Tips Before You Record
@@ -121,9 +228,18 @@ export default function Record() {
             </div>
           </div>
 
+          {/* Video Recorder */}
           <MultiTakeVideoRecorder />
         </div>
       </div>
+
+      {/* Teleprompter Overlay */}
+      {showTeleprompter && (
+        <Teleprompter 
+          script={script} 
+          onClose={() => setShowTeleprompter(false)} 
+        />
+      )}
     </>
   )
 }
