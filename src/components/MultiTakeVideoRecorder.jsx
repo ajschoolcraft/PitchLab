@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import { supabase } from '../lib/supabase';
+import { AuthContext } from '../context/AuthContext';
 
 // ShareInstructions Component - Embedded
 const ShareInstructions = ({ filename, onBack }) => {
@@ -340,6 +342,8 @@ const ShareInstructions = ({ filename, onBack }) => {
 
 // Main MultiTakeVideoRecorder Component
 const MultiTakeVideoRecorder = () => {
+  const { user } = useContext(AuthContext); // Get logged-in user
+  
   const [isRecording, setIsRecording] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(60);
@@ -350,6 +354,8 @@ const MultiTakeVideoRecorder = () => {
   const [downloadCounter, setDownloadCounter] = useState(1);
   const [showShareInstructions, setShowShareInstructions] = useState(false);
   const [lastDownloadedFilename, setLastDownloadedFilename] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const videoPreviewRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -465,8 +471,73 @@ const MultiTakeVideoRecorder = () => {
     }
   };
 
+  // Upload video to Supabase
+  const uploadToSupabase = async (take) => {
+    if (!user) {
+      setError('You must be logged in to save videos');
+      return null;
+    }
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Generate unique filename
+      const videoId = Date.now();
+      const fileName = `${user.id}/${videoId}.webm`;
+      const filePath = `videos/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('videos')
+        .upload(filePath, take.blob, {
+          contentType: 'video/webm',
+          cacheControl: '3600',
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        setError('Failed to upload video. Please try again.');
+        setUploading(false);
+        return null;
+      }
+
+      setUploadProgress(50);
+
+      // Save metadata to database
+      const { data: metadataData, error: metadataError } = await supabase
+        .from('user_vids')
+        .insert({
+          user_id: user.id,
+          storage_path: filePath,
+          duration_secs: take.duration,
+          final_size_bytes: take.blob.size,
+          status: 'draft'
+        })
+        .select()
+        .single();
+
+      if (metadataError) {
+        console.error('Metadata error:', metadataError);
+        setError('Video uploaded but failed to save details. Please contact support.');
+        setUploading(false);
+        return null;
+      }
+
+      setUploadProgress(100);
+      setUploading(false);
+      
+      return metadataData;
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('Something went wrong. Please try again.');
+      setUploading(false);
+      return null;
+    }
+  };
+
   // Download a specific take
-  const downloadTake = (take, showPrompt = true) => {
+  const downloadTake = async (take, showPrompt = true) => {
     if (showPrompt && takes.length > 1) {
       setSelectedTake(take);
       setShowDeletePrompt(true);
@@ -475,10 +546,16 @@ const MultiTakeVideoRecorder = () => {
 
     const filename = `PresentationCoach_${String(downloadCounter).padStart(3, '0')}.webm`;
     
+    // Download to user's device
     const a = document.createElement('a');
     a.href = take.url;
     a.download = filename;
     a.click();
+
+    // Also upload to Supabase if user is logged in
+    if (user) {
+      await uploadToSupabase(take);
+    }
 
     const newCounter = downloadCounter + 1;
     setDownloadCounter(newCounter);
@@ -490,10 +567,10 @@ const MultiTakeVideoRecorder = () => {
   };
 
   // Download and delete other takes
-  const downloadAndDeleteOthers = () => {
+  const downloadAndDeleteOthers = async () => {
     if (!selectedTake) return;
 
-    downloadTake(selectedTake, false);
+    await downloadTake(selectedTake, false);
 
     takes.forEach(take => {
       if (take.id !== selectedTake.id) {
@@ -506,10 +583,10 @@ const MultiTakeVideoRecorder = () => {
   };
 
   // Download and keep all takes
-  const downloadAndKeepRecording = () => {
+  const downloadAndKeepRecording = async () => {
     if (!selectedTake) return;
     
-    downloadTake(selectedTake, false);
+    await downloadTake(selectedTake, false);
     setShowDeletePrompt(false);
   };
 
@@ -548,7 +625,7 @@ const MultiTakeVideoRecorder = () => {
       }
       takes.forEach(take => URL.revokeObjectURL(take.url));
       if (timerRef.current) {
-        clearInterval(timerRef);
+        clearInterval(timerRef.current);
       }
     };
   }, [takes]);
@@ -583,9 +660,21 @@ const MultiTakeVideoRecorder = () => {
           </div>
         )}
 
+        {uploading && (
+          <div style={styles.uploadProgress}>
+            <div style={styles.uploadBar}>
+              <div style={{...styles.uploadFill, width: `${uploadProgress}%`}}></div>
+            </div>
+            <p style={styles.uploadText}>
+              {uploadProgress < 50 ? 'Uploading video...' : 'Saving details...'}
+            </p>
+          </div>
+        )}
+
         {takes.length > 0 && (
           <div style={styles.takesCounter}>
             📹 {takes.length} take{takes.length !== 1 ? 's' : ''} recorded
+            {user && ' • Videos saved to your account'}
           </div>
         )}
 
@@ -594,6 +683,7 @@ const MultiTakeVideoRecorder = () => {
             <p style={styles.description}>
               Record multiple takes and choose your best one. 
               Videos are stored temporarily until you download or close this page.
+              {user && ' When you download, videos are automatically saved to your account.'}
             </p>
             <button onClick={requestPermissions} style={styles.primaryButton}>
               Enable Camera
@@ -683,7 +773,7 @@ const MultiTakeVideoRecorder = () => {
 
             <div style={styles.controls}>
               <button onClick={() => downloadTake(selectedTake)} style={styles.primaryButton}>
-                Download This Take
+                {user ? 'Download & Save' : 'Download This Take'}
               </button>
               <button onClick={recordAnother} style={styles.secondaryButton}>
                 Record Another
@@ -698,6 +788,7 @@ const MultiTakeVideoRecorder = () => {
 
             <p style={styles.hint}>
               💡 Next download will be: PresentationCoach_{String(downloadCounter).padStart(3, '0')}.webm
+              {user && ' (Also saved to your cloud account)'}
             </p>
           </div>
         )}
@@ -731,7 +822,8 @@ const MultiTakeVideoRecorder = () => {
           ✓ Record unlimited takes<br />
           ✓ Review and compare all recordings<br />
           ✓ Download your favorite with custom naming<br />
-          ⚠️ All takes deleted when you close this tab
+          {user ? '✓ Videos automatically saved to your account' : '⚠️ Log in to save videos to your account'}<br />
+          ⚠️ Temporary takes deleted when you close this tab
         </p>
       </div>
     </div>
@@ -780,6 +872,32 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'background-color 0.2s',
+  },
+  uploadProgress: {
+    backgroundColor: '#e3f2fd',
+    border: '1px solid #90caf9',
+    borderRadius: '8px',
+    padding: '16px',
+    marginBottom: '16px',
+  },
+  uploadBar: {
+    width: '100%',
+    height: '8px',
+    backgroundColor: '#e0e0e0',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    marginBottom: '8px',
+  },
+  uploadFill: {
+    height: '100%',
+    backgroundColor: '#007bff',
+    transition: 'width 0.3s ease',
+  },
+  uploadText: {
+    fontSize: '14px',
+    color: '#1976d2',
+    textAlign: 'center',
+    margin: 0,
   },
   takesCounter: {
     backgroundColor: '#e3f2fd',
