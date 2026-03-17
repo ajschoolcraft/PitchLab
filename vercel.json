@@ -5,8 +5,4 @@
   }
   ```
   
-  Save. Then:
-  ```
-  git add .
-  git commit -m "Fix Vercel routing for React Router"
-  git push
+ 
