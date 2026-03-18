@@ -1,12 +1,21 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import Onboarding from '../components/Onboarding'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
   const [scripts, setScripts] = useState([])
   const [recordings, setRecordings] = useState([])
+  const [showOnboarding, setShowOnboarding] = useState(false)
+
+  useEffect(() => {
+    const done = localStorage.getItem('pc_onboarding_complete')
+    if (!done) {
+      setShowOnboarding(true)
+    }
+  }, [])
 
   const getUserName = () => {
     if (!user?.email) return 'there'
@@ -36,8 +45,6 @@ export default function Dashboard() {
           max-width: 1100px;
           margin: 0 auto;
         }
-
-        /* Header */
         .pc-dash-header {
           margin-bottom: 36px;
         }
@@ -59,7 +66,6 @@ export default function Dashboard() {
           color: #9ca3af;
         }
 
-        /* Stats */
         .pc-dash-stats {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -92,7 +98,6 @@ export default function Dashboard() {
           font-weight: 500;
         }
 
-        /* Main Action Card */
         .pc-dash-action-card {
           background: linear-gradient(135deg, #FF9500, #FF6B00);
           border-radius: 20px;
@@ -148,7 +153,6 @@ export default function Dashboard() {
           box-shadow: 0 6px 24px rgba(0,0,0,0.15);
         }
 
-        /* Content Grid */
         .pc-dash-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -188,7 +192,6 @@ export default function Dashboard() {
           color: #1a1a1a;
         }
 
-        /* Empty State */
         .pc-dash-empty {
           text-align: center;
           padding: 32px 16px;
@@ -210,7 +213,6 @@ export default function Dashboard() {
           color: #c4c9d1;
         }
 
-        /* Card Button */
         .pc-dash-card-btn {
           width: 100%;
           padding: 14px;
@@ -231,7 +233,6 @@ export default function Dashboard() {
           border-color: #FF9500;
         }
 
-        /* Quick Actions */
         .pc-dash-quick {
           background: white;
           border-radius: 20px;
@@ -275,7 +276,6 @@ export default function Dashboard() {
           color: #1a1a1a;
         }
 
-        /* Mobile */
         @media (max-width: 768px) {
           .pc-dash { padding: 24px 16px 60px; }
           .pc-dash-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -293,16 +293,18 @@ export default function Dashboard() {
         }
       `}</style>
 
+      {showOnboarding && (
+        <Onboarding onComplete={() => setShowOnboarding(false)} />
+      )}
+
       <div className="pc-dash">
         <div className="pc-dash-inner">
-          {/* Header */}
           <div className="pc-dash-header">
             <p className="pc-dash-greeting">{getTimeGreeting()}</p>
             <h1 className="pc-dash-title">Welcome back, {getUserName()} 👋</h1>
             <p className="pc-dash-subtitle">Here's your coaching overview</p>
           </div>
 
-          {/* Stats Row */}
           <div className="pc-dash-stats">
             <div className="pc-dash-stat">
               <div className="pc-dash-stat-num">{scripts.length}</div>
@@ -318,7 +320,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Main Action Card */}
           <div className="pc-dash-action-card">
             <div className="pc-dash-action-text">
               <h2>Ready to create your next presentation?</h2>
@@ -329,9 +330,7 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* Content Cards */}
           <div className="pc-dash-grid">
-            {/* Scripts Card */}
             <div className="pc-dash-card">
               <div className="pc-dash-card-header">
                 <div className="pc-dash-card-icon">📝</div>
@@ -344,16 +343,13 @@ export default function Dashboard() {
                   <p className="pc-dash-empty-text">Create your first AI-powered script</p>
                 </div>
               ) : (
-                <div>
-                  {/* Script list renders here when DB connected */}
-                </div>
+                <div></div>
               )}
               <button className="pc-dash-card-btn" onClick={() => navigate('/script-generator')}>
                 ✍️ New Script
               </button>
             </div>
 
-            {/* Recordings Card */}
             <div className="pc-dash-card">
               <div className="pc-dash-card-header">
                 <div className="pc-dash-card-icon">🎥</div>
@@ -366,9 +362,7 @@ export default function Dashboard() {
                   <p className="pc-dash-empty-text">Record your first presentation</p>
                 </div>
               ) : (
-                <div>
-                  {/* Recordings list renders here when DB connected */}
-                </div>
+                <div></div>
               )}
               <button className="pc-dash-card-btn" onClick={() => navigate('/record')}>
                 🎤 Start Recording
@@ -376,7 +370,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className="pc-dash-quick">
             <h3 className="pc-dash-quick-title">Quick Actions</h3>
             <div className="pc-dash-quick-grid">
