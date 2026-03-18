@@ -373,6 +373,7 @@ const MultiTakeVideoRecorder = () => {
 
   // Request camera and microphone permissions
   const requestPermissions = async () => {
+    console.log('🎥 Requesting camera permissions...');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -383,14 +384,31 @@ const MultiTakeVideoRecorder = () => {
         audio: true
       });
 
+      console.log('✅ Got stream:', stream);
+      console.log('📹 Stream active?', stream.active);
+      console.log('🎬 Video tracks:', stream.getVideoTracks());
+
       streamRef.current = stream;
+      
       if (videoPreviewRef.current) {
+        console.log('🔗 Connecting stream to video element...');
         videoPreviewRef.current.srcObject = stream;
+        console.log('✅ Stream connected to video element');
+        
+        // Force video to play
+        setTimeout(() => {
+          if (videoPreviewRef.current) {
+            videoPreviewRef.current.play().catch(e => console.error('Play error:', e));
+          }
+        }, 100);
+      } else {
+        console.error('❌ Video preview element not found!');
       }
+      
       setPermissionGranted(true);
       setError(null);
     } catch (err) {
-      console.error('Permission error:', err);
+      console.error('❌ Permission error:', err);
       setError('Camera/microphone access denied. Please enable permissions in your browser settings.');
     }
   };
