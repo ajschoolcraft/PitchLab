@@ -615,6 +615,11 @@ const MultiTakeVideoRecorder = () => {
   const recordAnother = () => {
     setSelectedTake(null);
     setTimeRemaining(60);
+    
+    // Re-connect camera stream to preview
+    if (streamRef.current && videoPreviewRef.current) {
+      videoPreviewRef.current.srcObject = streamRef.current;
+    }
   };
 
   // Cleanup on unmount
@@ -629,6 +634,13 @@ const MultiTakeVideoRecorder = () => {
       }
     };
   }, [takes]);
+
+  // Re-connect camera stream when returning to recording view
+  useEffect(() => {
+    if (permissionGranted && !selectedTake && streamRef.current && videoPreviewRef.current) {
+      videoPreviewRef.current.srcObject = streamRef.current;
+    }
+  }, [permissionGranted, selectedTake]);
 
   // If showing share instructions, render that instead
   if (showShareInstructions) {
@@ -698,7 +710,7 @@ const MultiTakeVideoRecorder = () => {
               autoPlay
               playsInline
               muted
-              style={{...styles.video, transform: 'scaleX(-1)'}}
+              style={styles.video}
             />
             
             {isRecording && (
@@ -936,6 +948,8 @@ const styles = {
     borderRadius: '8px',
     backgroundColor: '#000',
     marginBottom: '16px',
+    display: 'block',
+    objectFit: 'cover',
   },
   recordingIndicator: {
     position: 'absolute',
