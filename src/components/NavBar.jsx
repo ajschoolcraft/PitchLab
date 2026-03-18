@@ -5,10 +5,11 @@ import { AuthContext } from '../context/AuthContext'
 export default function NavBar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout } = useContext(AuthContext)
+  const { user, logout, loading } = useContext(AuthContext)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  if (!user) return null
+  if (loading) return null  // Wait for auth to load
+  if (!user) return null    // Hide nav if not logged in
 
   const handleLogout = async () => {
     await logout()
