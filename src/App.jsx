@@ -6,7 +6,7 @@ import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Record from './pages/Record'
-import ScriptGenerator from './pages/ScriptGenerator'
+import ScriptGeneratorV2 from './pages/ScriptGeneratorV2'
 
 function App() {
   return (
@@ -27,7 +27,7 @@ function App() {
         } />
         <Route path="/script-generator" element={
           <ProtectedRoute>
-            <ScriptGenerator />
+            <ScriptGeneratorV2 />
           </ProtectedRoute>
         } />
       </Routes>
