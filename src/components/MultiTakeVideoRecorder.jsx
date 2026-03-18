@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 import { supabase } from '../lib/supabase';
 import { AuthContext } from '../context/AuthContext';
 
+console.log('🔥 VIDEO RECORDER COMPONENT LOADED');
+
 // ShareInstructions Component - Embedded
 const ShareInstructions = ({ filename, onBack }) => {
   const [selectedPlatform, setSelectedPlatform] = useState(null);
@@ -342,7 +344,7 @@ const ShareInstructions = ({ filename, onBack }) => {
 
 // Main MultiTakeVideoRecorder Component
 const MultiTakeVideoRecorder = () => {
-  const { user } = useContext(AuthContext); // Get logged-in user
+  const { user } = useContext(AuthContext);
   
   const [isRecording, setIsRecording] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
@@ -363,6 +365,8 @@ const MultiTakeVideoRecorder = () => {
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
 
+  console.log('📹 Component rendered, permissionGranted:', permissionGranted);
+
   // Load download counter from localStorage
   useEffect(() => {
     const savedCounter = localStorage.getItem('presentationCoachCounter');
@@ -373,8 +377,10 @@ const MultiTakeVideoRecorder = () => {
 
   // Request camera and microphone permissions
   const requestPermissions = async () => {
-    console.log('🎥 Requesting camera permissions...');
+    console.log('🎥 Button clicked - Requesting camera permissions...');
+    
     try {
+      console.log('📞 Calling getUserMedia...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
@@ -387,26 +393,34 @@ const MultiTakeVideoRecorder = () => {
       console.log('✅ Got stream:', stream);
       console.log('📹 Stream active?', stream.active);
       console.log('🎬 Video tracks:', stream.getVideoTracks());
+      console.log('🎤 Audio tracks:', stream.getAudioTracks());
 
       streamRef.current = stream;
+      
+      console.log('🔍 Video preview ref:', videoPreviewRef.current);
       
       if (videoPreviewRef.current) {
         console.log('🔗 Connecting stream to video element...');
         videoPreviewRef.current.srcObject = stream;
-        console.log('✅ Stream connected to video element');
+        console.log('✅ Stream connected!');
         
-        // Force video to play
+        // Try to play the video
         setTimeout(() => {
           if (videoPreviewRef.current) {
-            videoPreviewRef.current.play().catch(e => console.error('Play error:', e));
+            console.log('▶️ Attempting to play video...');
+            videoPreviewRef.current.play()
+              .then(() => console.log('✅ Video playing!'))
+              .catch(e => console.error('❌ Play error:', e));
           }
         }, 100);
       } else {
         console.error('❌ Video preview element not found!');
       }
       
+      console.log('🎯 Setting permissionGranted to true');
       setPermissionGranted(true);
       setError(null);
+      console.log('✅ Request permissions complete');
     } catch (err) {
       console.error('❌ Permission error:', err);
       setError('Camera/microphone access denied. Please enable permissions in your browser settings.');
@@ -415,6 +429,7 @@ const MultiTakeVideoRecorder = () => {
 
   // Start recording
   const startRecording = () => {
+    console.log('🔴 Starting recording...');
     if (!streamRef.current) {
       setError('No camera stream available');
       return;
@@ -479,6 +494,7 @@ const MultiTakeVideoRecorder = () => {
 
   // Stop recording
   const stopRecording = () => {
+    console.log('⏹️ Stopping recording...');
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
@@ -500,12 +516,10 @@ const MultiTakeVideoRecorder = () => {
     setUploadProgress(0);
 
     try {
-      // Generate unique filename
       const videoId = Date.now();
       const fileName = `${user.id}/${videoId}.webm`;
       const filePath = `videos/${fileName}`;
 
-      // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
         .upload(filePath, take.blob, {
@@ -522,7 +536,6 @@ const MultiTakeVideoRecorder = () => {
 
       setUploadProgress(50);
 
-      // Save metadata to database
       const { data: metadataData, error: metadataError } = await supabase
         .from('user_vids')
         .insert({
@@ -564,13 +577,11 @@ const MultiTakeVideoRecorder = () => {
 
     const filename = `PresentationCoach_${String(downloadCounter).padStart(3, '0')}.webm`;
     
-    // Download to user's device
     const a = document.createElement('a');
     a.href = take.url;
     a.download = filename;
     a.click();
 
-    // Also upload to Supabase if user is logged in
     if (user) {
       await uploadToSupabase(take);
     }
@@ -579,63 +590,53 @@ const MultiTakeVideoRecorder = () => {
     setDownloadCounter(newCounter);
     localStorage.setItem('presentationCoachCounter', newCounter.toString());
     
-    // Show share instructions after download
     setLastDownloadedFilename(filename);
     setShowShareInstructions(true);
   };
 
-  // Download and delete other takes
   const downloadAndDeleteOthers = async () => {
     if (!selectedTake) return;
-
     await downloadTake(selectedTake, false);
-
     takes.forEach(take => {
       if (take.id !== selectedTake.id) {
         URL.revokeObjectURL(take.url);
       }
     });
-
     setTakes([selectedTake]);
     setShowDeletePrompt(false);
   };
 
-  // Download and keep all takes
   const downloadAndKeepRecording = async () => {
     if (!selectedTake) return;
-    
     await downloadTake(selectedTake, false);
     setShowDeletePrompt(false);
   };
 
-  // Delete a specific take
   const deleteTake = (takeId) => {
     const take = takes.find(t => t.id === takeId);
     if (take) {
       URL.revokeObjectURL(take.url);
     }
-    
     setTakes(prev => prev.filter(t => t.id !== takeId));
-    
     if (selectedTake?.id === takeId) {
       setSelectedTake(takes.length > 1 ? takes[0] : null);
     }
   };
 
-  // Delete all takes
   const deleteAllTakes = () => {
     takes.forEach(take => URL.revokeObjectURL(take.url));
     setTakes([]);
     setSelectedTake(null);
   };
 
-  // Record another take
   const recordAnother = () => {
+    console.log('🔄 Recording another take...');
     setSelectedTake(null);
     setTimeRemaining(60);
     
-    // Re-connect camera stream to preview
+    // Re-connect camera stream
     if (streamRef.current && videoPreviewRef.current) {
+      console.log('🔗 Re-connecting stream...');
       videoPreviewRef.current.srcObject = streamRef.current;
     }
   };
@@ -653,14 +654,15 @@ const MultiTakeVideoRecorder = () => {
     };
   }, [takes]);
 
-  // Re-connect camera stream when returning to recording view
+  // Re-connect camera when returning to recording view
   useEffect(() => {
+    console.log('🔄 View changed - permissionGranted:', permissionGranted, 'selectedTake:', selectedTake);
     if (permissionGranted && !selectedTake && streamRef.current && videoPreviewRef.current) {
+      console.log('🔗 Re-connecting stream to preview...');
       videoPreviewRef.current.srcObject = streamRef.current;
     }
   }, [permissionGranted, selectedTake]);
 
-  // If showing share instructions, render that instead
   if (showShareInstructions) {
     return (
       <div style={styles.container}>
@@ -715,7 +717,13 @@ const MultiTakeVideoRecorder = () => {
               Videos are stored temporarily until you download or close this page.
               {user && ' When you download, videos are automatically saved to your account.'}
             </p>
-            <button onClick={requestPermissions} style={styles.primaryButton}>
+            <button 
+              onClick={() => {
+                console.log('🖱️ Enable Camera button clicked!');
+                requestPermissions();
+              }} 
+              style={styles.primaryButton}
+            >
               Enable Camera
             </button>
           </div>
@@ -860,7 +868,6 @@ const MultiTakeVideoRecorder = () => {
   );
 };
 
-// Styles
 const styles = {
   container: {
     minHeight: '100vh',
@@ -901,7 +908,6 @@ const styles = {
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'background-color 0.2s',
   },
   uploadProgress: {
     backgroundColor: '#e3f2fd',
@@ -963,6 +969,8 @@ const styles = {
   },
   video: {
     width: '100%',
+    height: 'auto',
+    minHeight: '300px',
     borderRadius: '8px',
     backgroundColor: '#000',
     marginBottom: '16px',
@@ -985,7 +993,6 @@ const styles = {
   recordingDot: {
     color: '#ff4444',
     fontSize: '20px',
-    animation: 'pulse 1.5s infinite',
   },
   controls: {
     display: 'flex',
@@ -1003,7 +1010,6 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'background-color 0.2s',
   },
   recordButton: {
     backgroundColor: '#dc3545',
@@ -1117,9 +1123,6 @@ const styles = {
     height: '20px',
     fontSize: '12px',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 0,
   },
   hint: {
