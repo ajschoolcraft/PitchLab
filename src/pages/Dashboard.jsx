@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useContext, useEffect } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import Onboarding from '../components/Onboarding'
+import { supabase } from '../lib/supabase'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -10,12 +11,58 @@ export default function Dashboard() {
   const [recordings, setRecordings] = useState([])
   const [showOnboarding, setShowOnboarding] = useState(false)
 
+  console.log('🔵 Dashboard loaded')  // ← ADD THIS
+  console.log('🔵 User:', user)  // ← ADD THIS
+
   useEffect(() => {
     const done = localStorage.getItem('pc_onboarding_complete')
     if (!done) {
       setShowOnboarding(true)
     }
   }, [])
+      // Fetch user's scripts and recordings
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return
+
+      console.log('Current user ID:', user.id)  // ← ADD THIS
+      console.log('Fetching scripts...')  // ← ADD THIS
+
+      try {
+        // Fetch scripts
+        const { data: scriptsData, error: scriptsError } = await supabase
+          .from('scripts')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+
+        if (scriptsError) throw scriptsError
+        
+        console.log('Scripts fetched:', scriptsData)  // ← ADD THIS
+        console.log('Number of scripts:', scriptsData?.length)  // ← ADD THIS
+        
+        setScripts(scriptsData || [])
+
+        // Fetch recordings (videos)
+        const { data: recordingsData, error: recordingsError } = await supabase
+          .from('user_vids')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+
+        if (recordingsError) throw recordingsError
+        
+        console.log('Recordings fetched:', recordingsData)  // ← ADD THIS
+        
+        setRecordings(recordingsData || [])
+
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [user])
 
   const getUserName = () => {
     if (!user?.email) return 'there'
