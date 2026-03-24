@@ -322,7 +322,66 @@ export default function Dashboard() {
           font-weight: 600;
           color: #1a1a1a;
         }
+        .pc-dash-script-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
 
+        .pc-dash-script-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px;
+          background: #FAFAFA;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+        }
+
+        .pc-dash-script-item:hover {
+          background: #F0F0F0;
+        }
+
+        .pc-dash-script-info {
+          flex: 1;
+        }
+
+        .pc-dash-script-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin-bottom: 2px;
+        }
+
+        .pc-dash-script-date {
+          font-size: 12px;
+          color: #9ca3af;
+        }
+
+        .pc-dash-script-btn {
+          padding: 6px 12px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #FF9500;
+          background: white;
+          border: 1px solid #FFE0B2;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .pc-dash-script-btn:hover {
+          background: #FFF8F0;
+          border-color: #FF9500;
+        }
+
+        .pc-dash-script-more {
+          font-size: 13px;
+          color: #9ca3af;
+          text-align: center;
+          padding: 8px;
+        }
         @media (max-width: 768px) {
           .pc-dash { padding: 24px 16px 60px; }
           .pc-dash-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -390,7 +449,31 @@ export default function Dashboard() {
                   <p className="pc-dash-empty-text">Create your first AI-powered script</p>
                 </div>
               ) : (
-                <div></div>
+                <div className="pc-dash-script-list">
+                  {scripts.slice(0, 3).map(script => (
+                    <div key={script.id} className="pc-dash-script-item">
+                      <div className="pc-dash-script-info">
+                        <div className="pc-dash-script-title">
+                          {script.title || `Pitch Script`}
+                        </div>
+                        <div className="pc-dash-script-date">
+                          {new Date(script.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <button 
+                        className="pc-dash-script-btn"
+                        onClick={() => navigate('/record', { state: { script } })}
+                      >
+                        Use →
+                      </button>
+                    </div>
+                  ))}
+                  {scripts.length > 3 && (
+                    <div className="pc-dash-script-more">
+                      +{scripts.length - 3} more scripts
+                    </div>
+                  )}
+                </div>
               )}
               <button className="pc-dash-card-btn" onClick={() => navigate('/script-generator')}>
                 ✍️ New Script
