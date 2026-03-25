@@ -8,6 +8,8 @@ import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Record from './pages/Record'
 import ScriptGenerator from './pages/ScriptGenerator'
+import Profile from './pages/Profile'
+import NotFound from './pages/NotFound'
 
 function App() {
   return (
@@ -32,6 +34,12 @@ function App() {
               <ScriptGenerator />
             </ProtectedRoute>
           } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </ToastProvider>
     </AuthProvider>
