@@ -1,10 +1,14 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import MultiTakeVideoRecorder from '../components/MultiTakeVideoRecorder'
 import Teleprompter from '../components/Teleprompter'
 
 export default function Record() {
+  const location = useLocation()
+  const passedScript = location.state?.script
+  
   const [showTeleprompter, setShowTeleprompter] = useState(false)
-  const [script, setScript] = useState('')
+  const [script, setScript] = useState(passedScript?.script_text || '')
 
   return (
     <>
@@ -44,7 +48,7 @@ export default function Record() {
           color: #6b7280;
           line-height: 1.5;
         }
-
+        
         /* Teleprompter Card */
         .pc-record-tp-card {
           background: #1a1a1a;
@@ -169,7 +173,23 @@ export default function Record() {
               Take as many tries as you need. Pick your best take and download it.
             </p>
           </div>
-
+          {/* Script Loaded Notification */}
+          {passedScript && (
+            <div style={{
+              background: '#FFF8F0',
+              border: '1px solid #FFE0B2',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '24px'
+            }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#FF9500', marginBottom: '4px' }}>
+                📝 Script Loaded
+              </div>
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                {passedScript.title || passedScript.script_text?.substring(0, 50) + '...' || 'Using your pitch script'}
+              </div>
+            </div>
+          )}
           {/* Teleprompter Card */}
           <div className="pc-record-tp-card">
             <div className="pc-record-tp-info">
@@ -229,7 +249,7 @@ export default function Record() {
           </div>
 
           {/* Video Recorder */}
-          <MultiTakeVideoRecorder />
+          <MultiTakeVideoRecorder script={passedScript} />
         </div>
       </div>
 

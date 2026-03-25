@@ -382,6 +382,66 @@ export default function Dashboard() {
           text-align: center;
           padding: 8px;
         }
+        .pc-dash-recording-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+
+        .pc-dash-recording-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px;
+          background: #FAFAFA;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+        }
+
+        .pc-dash-recording-item:hover {
+          background: #F0F0F0;
+        }
+
+        .pc-dash-recording-info {
+          flex: 1;
+        }
+
+        .pc-dash-recording-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin-bottom: 2px;
+        }
+
+        .pc-dash-recording-meta {
+          font-size: 12px;
+          color: #9ca3af;
+        }
+
+        .pc-dash-recording-btn {
+          padding: 6px 12px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #FF9500;
+          background: white;
+          border: 1px solid #FFE0B2;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .pc-dash-recording-btn:hover {
+          background: #FFF8F0;
+          border-color: #FF9500;
+        }
+
+        .pc-dash-recording-more {
+          font-size: 13px;
+          color: #9ca3af;
+          text-align: center;
+          padding: 8px;
+        }
         @media (max-width: 768px) {
           .pc-dash { padding: 24px 16px 60px; }
           .pc-dash-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -453,9 +513,9 @@ export default function Dashboard() {
                   {scripts.slice(0, 3).map(script => (
                     <div key={script.id} className="pc-dash-script-item">
                       <div className="pc-dash-script-info">
-                        <div className="pc-dash-script-title">
-                          {script.title || `Pitch Script`}
-                        </div>
+                      <div className="pc-dash-script-title">
+                        Script #{scripts.length - scripts.indexOf(script)}
+                      </div>
                         <div className="pc-dash-script-date">
                           {new Date(script.created_at).toLocaleDateString()}
                         </div>
@@ -492,7 +552,51 @@ export default function Dashboard() {
                   <p className="pc-dash-empty-text">Record your first presentation</p>
                 </div>
               ) : (
-                <div></div>
+                <div className="pc-dash-recording-list">
+                  {recordings.slice(0, 3).map((recording, index) => (
+                    <div key={recording.id} className="pc-dash-recording-item">
+                      <div className="pc-dash-recording-info">
+                        <div className="pc-dash-recording-title">
+                          Recording #{recordings.length - index}
+                        </div>
+                        <div className="pc-dash-recording-meta">
+                          {new Date(recording.created_at).toLocaleDateString()} • {recording.duration_secs}s
+                        </div>
+                      </div>
+                      <button 
+                        className="pc-dash-recording-btn"
+                        onClick={async () => {
+                          try {
+                            const { data, error } = await supabase.storage
+                              .from('videos')
+                              .download(recording.storage_path);
+                            
+                            if (error) {
+                              console.error('Download error:', error);
+                              alert('Error loading video: ' + error.message);
+                              return;
+                            }
+                            
+                            // Create blob URL and open in new tab
+                            const url = URL.createObjectURL(data);
+                            window.open(url, '_blank');
+                            
+                          } catch (err) {
+                            console.error('Error:', err);
+                            alert('Failed to load video');
+                          }
+                        }}
+                      >
+                        View
+                      </button>
+                    </div>
+                  ))}
+                  {recordings.length > 3 && (
+                    <div className="pc-dash-recording-more">
+                      +{recordings.length - 3} more recordings
+                    </div>
+                  )}
+                </div>
               )}
               <button className="pc-dash-card-btn" onClick={() => navigate('/record')}>
                 🎤 Start Recording
