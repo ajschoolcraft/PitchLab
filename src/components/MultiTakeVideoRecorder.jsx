@@ -204,6 +204,14 @@ const MultiTakeVideoRecorder = () => {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    
+    // Reconnect stream to video after stopping
+    setTimeout(() => {
+      if (streamRef.current && videoRef.current && !selectedTake) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.play();
+      }
+    }, 100);
   };
 
   const downloadTake = (take) => {
@@ -227,14 +235,6 @@ const MultiTakeVideoRecorder = () => {
     
     setSelectedTake(null);
     setTimeRemaining(60);
-    
-    // Reconnect stream
-    setTimeout(() => {
-      if (streamRef.current && videoRef.current) {
-        videoRef.current.srcObject = streamRef.current;
-        videoRef.current.play();
-      }
-    }, 200);
   };
 
   const selectTake = (take) => {
@@ -263,6 +263,13 @@ const MultiTakeVideoRecorder = () => {
       videoRef.current.srcObject = streamRef.current;
     }
   }, [permissionGranted, selectedTake]);
+
+  useEffect(() => {
+    if (showTeleprompter && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play();
+    }
+  }, [showTeleprompter]);
 
   // TELEPROMPTER OVERLAY
   if (showTeleprompter && script) {
