@@ -4,23 +4,22 @@ import { AuthContext } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import Teleprompter from './Teleprompter';
 
-console.log('🔥 VIDEO RECORDER WITH INTEGRATED TELEPROMPTER');
-
 const MultiTakeVideoRecorder = () => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
-  const scriptFromGenerator = location.state?.script?.script_text || location.state?.script || '';
-
+  
+  // Get script
+  const scriptData = location.state?.script;
+  const script = typeof scriptData === 'string' ? scriptData : scriptData?.script_text || '';
   
   const [isRecording, setIsRecording] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(60);
-  const [countdown, setCountdown] = useState(null);
   const [error, setError] = useState(null);
   const [takes, setTakes] = useState([]);
   const [selectedTake, setSelectedTake] = useState(null);
   const [downloadCounter, setDownloadCounter] = useState(1);
-  const [script, setScript] = useState(typeof scriptFromGenerator === 'string' ? scriptFromGenerator : scriptFromGenerator?.script_text || '');
+  const [countdown, setCountdown] = useState(null);
   const [showTeleprompter, setShowTeleprompter] = useState(false);
 
   const videoRef = useRef(null);
@@ -28,6 +27,8 @@ const MultiTakeVideoRecorder = () => {
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
+  const isStartingRef = useRef(false);
+  const recordingStartTimeRef = useRef(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('presentationCoachCounter');
@@ -35,13 +36,12 @@ const MultiTakeVideoRecorder = () => {
   }, []);
 
   const requestPermissions = async () => {
-    console.log('🎥 Requesting camera...');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: 1280, height: 720, facingMode: 'user' },
         audio: true
       });
-
+      
       streamRef.current = stream;
       
       if (videoRef.current) {
@@ -61,69 +61,129 @@ const MultiTakeVideoRecorder = () => {
     }
   };
 
-  const startCountdown = () => {
-    setCountdown(3);
-    const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          setCountdown(null);
-          startRecordingNow();
-          return null;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
   const startRecording = () => {
     if (script) {
-      // If there's a script, show teleprompter and start countdown
       setShowTeleprompter(true);
-      startCountdown();
+      setCountdown(3);
+      
+      const interval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setCountdown(null);
+            startRecordingNow();
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } else {
-      // No script, just start recording immediately
       startRecordingNow();
     }
   };
 
-  const startRecordingNow = () => {
-    if (!streamRef.current) return;
+  const startRecordingNow = async () => {
+    // Prevent double-start with flag
+    if (isStartingRef.current) {
+      console.log('⚠️ Already starting, skipping...');
+      return;
+    }
+    isStartingRef.current = true;
     
+    // Prevent double-start
+    if (mediaRecorderRef.current?.state === 'recording') {
+      console.log('⚠️ Already recording, skipping...');
+      isStartingRef.current = false;
+      return;
+    }
+    
+    // Stop and clear any existing recorder FIRST
+    if (mediaRecorderRef.current) {
+      const oldRecorder = mediaRecorderRef.current;
+      if (oldRecorder.state === 'recording' || oldRecorder.state === 'paused') {
+        await new Promise(resolve => {
+          oldRecorder.onstop = () => {
+            console.log('Old recorder stopped');
+            resolve();
+          };
+          oldRecorder.stop();
+        });
+      }
+      mediaRecorderRef.current = null;
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    // Always get fresh stream
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720, facingMode: 'user' },
+        audio: true
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      alert('Could not access camera');
+      return;
+    }
+    
+    console.log('🎬 Starting recorder...');
     chunksRef.current = [];
     const recorder = new MediaRecorder(streamRef.current, {
-      mimeType: 'video/webm;codecs=vp8,opus',
+      mimeType: 'video/webm;codecs=vp9',
       videoBitsPerSecond: 2500000
     });
     
+    console.log('✅ Recorder created, starting...');
+    
     recorder.ondataavailable = (e) => {
-      if (e.data?.size > 0) chunksRef.current.push(e.data);
+      if (e.data?.size > 0) {
+        console.log('📦 Chunk:', e.data.size);
+        chunksRef.current.push(e.data);
+      }
     };
     
     recorder.onstop = () => {
-      const blob = new Blob(chunksRef.current, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
+      console.log('⏹ Stopped. Chunks:', chunksRef.current.length);
       
-      setTakes(prev => [...prev, {
-        id: Date.now(),
-        url,
-        blob,
-        timestamp: new Date().toLocaleString(),
-        duration: 60 - timeRemaining
-      }]);
-      
-      setShowTeleprompter(false);
-      if (timerRef.current) clearInterval(timerRef.current);
+      setTimeout(() => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        console.log('🎥 Blob size:', blob.size);
+        const url = URL.createObjectURL(blob);
+        
+        const duration = recordingStartTimeRef.current 
+          ? Math.round((Date.now() - recordingStartTimeRef.current) / 1000)
+          : 0;
+        
+        setTakes(prev => [...prev, {
+          id: Date.now(),
+          url,
+          blob,
+          timestamp: new Date().toLocaleString(),
+          duration
+        }]);
+        
+        setShowTeleprompter(false);
+        if (timerRef.current) clearInterval(timerRef.current);
+      }, 100);
     };
     
     mediaRecorderRef.current = recorder;
     recorder.start(100);
     setIsRecording(true);
     setTimeRemaining(60);
+    recordingStartTimeRef.current = Date.now();
+    
+    isStartingRef.current = false;
     
     timerRef.current = setInterval(() => {
       setTimeRemaining(prev => {
         if (prev <= 1) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
           stopRecording();
           return 0;
         }
@@ -133,19 +193,21 @@ const MultiTakeVideoRecorder = () => {
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current?.state !== 'inactive') {
+    console.log('🛑 stopRecording called. Recorder state:', mediaRecorderRef.current?.state);
+    if (mediaRecorderRef.current?.state === 'recording' || mediaRecorderRef.current?.state === 'paused') {
+      console.log('Stopping recorder...');
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setShowTeleprompter(false);
-      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    setIsRecording(false);
+    setShowTeleprompter(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
   };
 
   const downloadTake = (take) => {
-    const userName = user?.user_metadata?.name || 
-                     user?.email?.split('@')[0] || 
-                     'User';
-    
+    const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
     const a = document.createElement('a');
     a.href = take.url;
@@ -158,23 +220,32 @@ const MultiTakeVideoRecorder = () => {
   };
 
   const recordAnother = () => {
+    // Clear old recorder
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current = null;
+    }
+    
     setSelectedTake(null);
     setTimeRemaining(60);
-    if (streamRef.current && videoRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-    }
+    
+    // Reconnect stream
+    setTimeout(() => {
+      if (streamRef.current && videoRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.play();
+      }
+    }, 200);
   };
 
   const selectTake = (take) => {
     setSelectedTake(take);
-  };
-
-  const handleCloseTeleprompter = () => {
-    // Stop recording if it's happening
-    if (isRecording) {
-      stopRecording();
-    }
-    setShowTeleprompter(false);
+    // Force video reload
+    setTimeout(() => {
+      const videoEl = document.querySelector('video[controls]');
+      if (videoEl) {
+        videoEl.load();
+      }
+    }, 50);
   };
 
   useEffect(() => {
@@ -185,7 +256,7 @@ const MultiTakeVideoRecorder = () => {
       takes.forEach(t => URL.revokeObjectURL(t.url));
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [takes]);
+  }, []);
 
   useEffect(() => {
     if (permissionGranted && !selectedTake && streamRef.current && videoRef.current) {
@@ -193,30 +264,15 @@ const MultiTakeVideoRecorder = () => {
     }
   }, [permissionGranted, selectedTake]);
 
-  useEffect(() => {
-    if (showTeleprompter && streamRef.current && videoRef.current) {
-      console.log('🔗 Reconnecting stream to corner video...');
-      videoRef.current.srcObject = streamRef.current;
-      videoRef.current.play().catch(e => console.error('Play error:', e));
-    }
-  }, [showTeleprompter]);
-
-  // TELEPROMPTER OVERLAY WITH CAMERA
+  // TELEPROMPTER OVERLAY
   if (showTeleprompter && script) {
     return (
-      <div style={styles.teleprompterWrapper}>
-        {/* Small video preview in corner */}
+      <>
+        <div style={styles.teleprompterWrapper}></div>
+        
         <div style={styles.videoCorner}>
-  <video
-    ref={videoRef}
-    autoPlay
-    playsInline
-    muted
-    style={styles.videoPreview}
-    key="teleprompter-video"
-  />
+          <video ref={videoRef} autoPlay playsInline muted style={styles.videoPreview} />
           
-          {/* Countdown overlay */}
           {countdown !== null && (
             <div style={styles.countdownOverlay}>
               <div style={styles.countdownNumber}>{countdown}</div>
@@ -224,32 +280,25 @@ const MultiTakeVideoRecorder = () => {
             </div>
           )}
           
-          {/* Recording indicator */}
           {isRecording && (
             <div style={styles.recordingBadge}>
-              <span style={styles.recDot}>●</span>
-              {timeRemaining}s
+              <span style={styles.recDot}>●</span> {timeRemaining}s
             </div>
           )}
         </div>
 
-        {/* Stop button */}
         {isRecording && (
           <button onClick={stopRecording} style={styles.stopFloating}>
-            ⏹ Stop Recording
+            ⏹ Stop
           </button>
         )}
-
-        {/* Actual Teleprompter Component */}
-        <Teleprompter 
-          script={script} 
-          onClose={handleCloseTeleprompter}
-        />
-      </div>
+        
+        <Teleprompter script={script} onClose={() => { stopRecording(); setShowTeleprompter(false); }} />
+      </>
     );
   }
 
-  // NORMAL RECORDER VIEW
+  // NORMAL VIEW
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -270,21 +319,13 @@ const MultiTakeVideoRecorder = () => {
 
         {!permissionGranted && takes.length === 0 && (
           <div style={styles.section}>
-            <p style={styles.desc}>
-              Record multiple takes and choose your best one.
-              {script && ' Your script will appear as a teleprompter while recording.'}
-            </p>
+            <p style={styles.desc}>Record multiple takes and choose your best one.</p>
             {script && (
-  <div style={styles.scriptPreview}>
-    <strong>📜 Your Script is Ready</strong>
-    <div style={styles.scriptPreviewText}>
-      {typeof script === 'string' ? script.substring(0, 150) : JSON.stringify(script).substring(0, 150)}...
-    </div>
-    <div style={styles.scriptHint}>
-      💡 The teleprompter will appear when you start recording
-    </div>
-  </div>
-)}
+              <div style={styles.scriptPreview}>
+                <strong>📜 Script Ready</strong>
+                <p>{script.substring(0, 150)}...</p>
+              </div>
+            )}
             <button onClick={requestPermissions} style={styles.primaryBtn}>
               Enable Camera
             </button>
@@ -293,33 +334,27 @@ const MultiTakeVideoRecorder = () => {
 
         {permissionGranted && !selectedTake && (
           <div>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              style={styles.video}
-            />
-
-            <div style={styles.controls}>
-              {!isRecording && countdown === null ? (
-                <button onClick={startRecording} style={styles.recordBtn}>
-                  {takes.length > 0 ? 'Record\nAnother' : 'Start\nRecording'}
-                </button>
-              ) : !showTeleprompter && isRecording ? (
-                <button onClick={stopRecording} style={styles.stopBtn}>
-                  Stop
-                </button>
-              ) : null}
-            </div>
-
-            {script && !isRecording && (
-              <div style={styles.teleprompterInfo}>
-                📜 Teleprompter will appear in 3 seconds after you click "Start Recording"
+            <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
+            
+            {isRecording && (
+              <div style={styles.recording}>
+                <span style={styles.dot}>●</span> Recording: {timeRemaining}s
               </div>
             )}
 
-            {takes.length > 0 && !isRecording && countdown === null && (
+            <div style={styles.controls}>
+              {!isRecording ? (
+                <button onClick={startRecording} style={styles.recordBtn}>
+                  {takes.length > 0 ? 'Record\nAnother' : 'Start\nRecording'}
+                </button>
+              ) : (
+                <button onClick={stopRecording} style={styles.stopBtn}>
+                  Stop
+                </button>
+              )}
+            </div>
+
+            {takes.length > 0 && (
               <button onClick={() => selectTake(takes[takes.length - 1])} style={styles.secondaryBtn}>
                 Review Takes ({takes.length})
               </button>
@@ -329,7 +364,7 @@ const MultiTakeVideoRecorder = () => {
 
         {selectedTake && (
           <div>
-            <video src={selectedTake.url} controls style={styles.video} />
+            <video src={selectedTake.url} controls style={styles.videoPlayback} />
             
             <div style={styles.takeInfo}>
               <strong>Take #{takes.findIndex(t => t.id === selectedTake.id) + 1}</strong>
@@ -444,37 +479,10 @@ const styles = {
     lineHeight: '1.5',
   },
   scriptPreview: {
-    backgroundColor: '#FFF8F0',
-    border: '2px solid #FFE0B2',
-    borderRadius: '12px',
-    padding: '20px',
-    marginBottom: '20px',
-    textAlign: 'left',
-  },
-  scriptPreviewText: {
-    marginTop: '8px',
-    marginBottom: '12px',
-    fontSize: '14px',
-    color: '#666',
-    lineHeight: '1.6',
-    fontStyle: 'italic',
-  },
-  scriptHint: {
-    fontSize: '13px',
-    color: '#FF9500',
-    fontWeight: '600',
-    marginTop: '12px',
-  },
-  teleprompterInfo: {
-    backgroundColor: '#FFF8F0',
-    border: '1px solid #FFE0B2',
+    backgroundColor: '#fff8f0',
+    padding: '16px',
     borderRadius: '8px',
-    padding: '12px',
-    marginBottom: '16px',
-    textAlign: 'center',
-    fontSize: '14px',
-    color: '#FF9500',
-    fontWeight: '600',
+    marginBottom: '20px',
   },
   video: {
     width: '100%',
@@ -485,6 +493,29 @@ const styles = {
     display: 'block',
     objectFit: 'cover',
     transform: 'scaleX(-1)',
+  },
+  videoPlayback: {
+    width: '100%',
+    minHeight: '300px',
+    borderRadius: '8px',
+    backgroundColor: '#000',
+    marginBottom: '16px',
+    display: 'block',
+    objectFit: 'cover',
+  },
+  recording: {
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    color: 'white',
+    padding: '8px 12px',
+    borderRadius: '20px',
+    fontSize: '14px',
+    marginBottom: '16px',
+    textAlign: 'center',
+  },
+  dot: {
+    color: '#ff4444',
+    fontSize: '20px',
+    marginRight: '8px',
   },
   controls: {
     display: 'flex',
@@ -567,35 +598,40 @@ const styles = {
     marginTop: '16px',
     textAlign: 'center',
   },
-
-  // TELEPROMPTER OVERLAY STYLES
+  
+  // Teleprompter
   teleprompterWrapper: {
-    position: 'relative',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    pointerEvents: 'none',
   },
   videoCorner: {
     position: 'fixed',
-    top: '80px',
+    top: '20px',
     right: '20px',
-    width: '240px',
+    width: '280px',
     zIndex: 10001,
     borderRadius: '12px',
     overflow: 'hidden',
     boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-    border: '2px solid rgba(255,255,255,0.1)',
+    pointerEvents: 'auto',
   },
   videoPreview: {
     width: '100%',
     height: 'auto',
     display: 'block',
     transform: 'scaleX(-1)',
-    backgroundColor: '#000',
   },
   countdownOverlay: {
     position: 'absolute',
-    top: '0',
-    left: '0',
-    right: '0',
-    bottom: '0',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.7)',
     display: 'flex',
     flexDirection: 'column',
@@ -603,13 +639,12 @@ const styles = {
     justifyContent: 'center',
   },
   countdownNumber: {
-    fontSize: '72px',
+    fontSize: '60px',
     fontWeight: 'bold',
     color: '#fff',
-    textShadow: '0 0 20px rgba(255,149,0,0.8)',
   },
   countdownText: {
-    fontSize: '16px',
+    fontSize: '14px',
     color: '#fff',
     marginTop: '8px',
   },
@@ -621,31 +656,29 @@ const styles = {
     color: 'white',
     padding: '6px 12px',
     borderRadius: '16px',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
   },
   recDot: {
     color: '#ff4444',
-    fontSize: '16px',
+    fontSize: '14px',
   },
   stopFloating: {
     position: 'fixed',
-    bottom: '120px',
+    bottom: '40px',
     left: '50%',
     transform: 'translateX(-50%)',
     backgroundColor: '#dc3545',
     color: 'white',
     border: 'none',
     borderRadius: '30px',
-    padding: '16px 40px',
-    fontSize: '18px',
+    padding: '14px 32px',
+    fontSize: '16px',
     fontWeight: '600',
     cursor: 'pointer',
     boxShadow: '0 6px 28px rgba(220,53,69,0.6)',
     zIndex: 10002,
+    pointerEvents: 'auto',
   },
 };
 
