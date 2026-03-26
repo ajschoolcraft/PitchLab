@@ -8,8 +8,8 @@ export default function NavBar() {
   const { user, logout, loading } = useContext(AuthContext)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  if (loading) return null  // Wait for auth to load
-  if (!user) return null    // Hide nav if not logged in
+  if (loading) return null
+  if (!user) return null
 
   const handleLogout = async () => {
     await logout()
@@ -22,6 +22,7 @@ export default function NavBar() {
     { path: '/dashboard', label: 'Home', icon: '🏠' },
     { path: '/script-generator', label: 'Create Script', icon: '✍️' },
     { path: '/record', label: 'Record', icon: '🎥' },
+    { path: '/profile', label: 'Profile', icon: '👤' },
   ]
 
   return (
