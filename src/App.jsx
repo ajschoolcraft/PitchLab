@@ -11,7 +11,6 @@ import ScriptGenerator from './pages/ScriptGenerator'
 import Profile from './pages/Profile'
 import NotFound from './pages/NotFound'
 
-
 function App() {
   return (
     <AuthProvider>
