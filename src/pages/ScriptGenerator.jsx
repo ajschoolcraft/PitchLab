@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { AuthContext } from '../context/AuthContext'
@@ -16,78 +16,50 @@ export default function ScriptGeneratorV2() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // The 11 stakeholder questions
-  const questions = [
-    {
-      id: 'q1',
-      text: 'What belief quietly drives the way you approach this work?',
-      placeholder: 'Example: I believe everyone deserves access to quality education, regardless of income'
-    },
-    {
-      id: 'q2',
-      text: 'Where did that belief come from?',
-      placeholder: 'Example: Growing up, I watched my mother struggle to afford tutoring for my siblings'
-    },
-    {
-      id: 'q3',
-      text: 'What standard do you hold, even when it\'s inconvenient?',
-      placeholder: 'Example: I never use generic templates - every lesson is customized'
-    },
-    {
-      id: 'q4',
-      text: 'Where are you currently not honoring that standard?',
-      placeholder: 'Example: Sometimes I reuse materials when I\'m rushed, but it bothers me'
-    },
-    {
-      id: 'q5',
-      text: 'What experiences uniquely shaped how you understand this problem?',
-      placeholder: 'Example: Years as a teacher showed me how one-size-fits-all fails most students'
-    },
-    {
-      id: 'q6',
-      text: 'Why does solving this problem matter more than it first appears?',
-      placeholder: 'Example: Education gaps compound - small differences in 3rd grade become massive by high school'
-    },
-    {
-      id: 'q7',
-      text: 'What happens if it remains unsolved?',
-      placeholder: 'Example: Another generation of kids falls through the cracks'
-    },
-    {
-      id: 'q8',
-      text: 'What specifically changes for your client?',
-      placeholder: 'Example: Students go from struggling to confident in 6 weeks'
-    },
-    {
-      id: 'q9',
-      text: 'What evidence supports that?',
-      placeholder: 'Example: 85% of our students improve by 2+ grade levels in one semester'
-    },
-    {
-      id: 'q10',
-      text: 'What are you currently over-explaining instead of simplifying?',
-      placeholder: 'Example: I talk too much about my teaching methodology instead of the results'
-    },
-    {
-      id: 'q11',
-      text: 'Where does your current messaging understate how you actually operate?',
-      placeholder: 'Example: We don\'t mention that we follow up with families for 3 months after'
+  const [questions, setQuestions] = useState([])
+  const [loadingQuestions, setLoadingQuestions] = useState(true)
+  
+  // Fetch questions from Supabase
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_num', { ascending: true })
+      
+      if (error) {
+        console.error('Error fetching questions:', error)
+        return
+      }
+      
+      // Format for use in component
+      const formattedQuestions = data.map(q => ({
+        id: q.question_id,
+        text: q.question_text,
+        placeholder: q.example_text
+      }))
+      
+      setQuestions(formattedQuestions)
+      setLoadingQuestions(false)
     }
-  ]
-
+    
+    fetchQuestions()
+  }, [])
+  
   const handleAnswerChange = (questionId, value) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: value
     }))
   }
-
+  
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     }
   }
-
+  
   const handleBack = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1)
@@ -138,6 +110,155 @@ export default function ScriptGeneratorV2() {
 
   const currentQ = questions[currentQuestion]
   const progress = ((currentQuestion + 1) / questions.length) * 100
+
+// Loading check
+if (loadingQuestions) {
+  return (
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <div style={styles.loading}>
+          <div style={styles.spinner}></div>
+          <p>Loading questions...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+if (!questions || questions.length === 0) {
+  return (
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <div style={styles.error}>
+          <p>No questions found. Please check database.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const currentQ = questions[currentQuestion]
+const progress = ((currentQuestion + 1) / questions.length) * 100
+
+return (
+  <div style={styles.container}>
+    <div style={styles.content}>
+      {/* Header */}
+      <div style={styles.header}>
+        <h1 style={styles.title}>Create Your Pitch Script</h1>
+        <p style={styles.subtitle}>
+          Answer these questions thoughtfully - they'll help us create an authentic pitch
+        </p>
+      </div>
+
+        {/* Progress Bar */}
+        <div style={styles.progressBar}>
+          <div style={{ ...styles.progressFill, width: `${progress}%` }} />
+        </div>
+        <p style={styles.progressText}>
+          Question {currentQuestion + 1} of {questions.length}
+        </p>
+
+        {/* Question Card */}
+        {!script && (
+          <div style={styles.card}>
+            <h2 style={styles.questionText}>{currentQ.text}</h2>
+            
+            <textarea
+              value={answers[currentQ.id]}
+              onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
+              placeholder={currentQ.placeholder}
+              style={styles.textarea}
+              rows={6}
+            />
+
+            {/* Navigation Buttons */}
+            <div style={styles.buttonRow}>
+              {currentQuestion > 0 && (
+                <button onClick={handleBack} style={styles.buttonSecondary}>
+                  ← Back
+                </button>
+              )}
+              
+              {currentQuestion < questions.length - 1 ? (
+                <button 
+                  onClick={handleNext} 
+                  style={styles.buttonPrimary}
+                  disabled={!answers[currentQ.id].trim()}
+                >
+                  Next →
+                </button>
+              ) : (
+                <button 
+                  onClick={handleGenerateScript} 
+                  style={styles.buttonPrimary}
+                  disabled={!answers[currentQ.id].trim() || loading}
+                >
+                  {loading ? 'Generating...' : '✨ Generate My Script'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div style={styles.loading}>
+            <div style={styles.spinner} />
+            <p>Crafting your authentic pitch...</p>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div style={styles.error}>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {/* Generated Script */}
+        {script && !loading && (
+          <div style={styles.card}>
+            <h2 style={styles.successTitle}>Your Script Is Ready! 🎉</h2>
+            <div style={styles.scriptBox}>
+              <pre style={styles.scriptText}>{script}</pre>
+            </div>
+            
+            <div style={styles.buttonRow}>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(script)
+                  alert('Script copied to clipboard!')
+                }}
+                style={styles.buttonSecondary}
+              >
+                📋 Copy Script
+              </button>
+              <button 
+                onClick={() => navigate('/record')}
+                style={styles.buttonPrimary}
+              >
+                🎥 Record This Script
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+if (!questions || questions.length === 0) {
+  return (
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <div style={styles.error}>
+          <p>No questions found. Please create the questions table in Supabase.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
   return (
     <div style={styles.container}>
@@ -247,6 +368,7 @@ export default function ScriptGeneratorV2() {
   )
 }
 
+
 const styles = {
   container: {
     minHeight: '100vh',
@@ -305,6 +427,7 @@ const styles = {
   },
   textarea: {
     width: '100%',
+    maxWidth: '600px',        // ← Add this
     padding: '16px',
     fontSize: '16px',
     border: '2px solid #e5e7eb',
@@ -312,6 +435,8 @@ const styles = {
     fontFamily: 'inherit',
     resize: 'vertical',
     marginBottom: '24px',
+    margin: '0 auto 24px',    // ← Change this line (centers it)
+    display: 'block',         // ← Add this
     transition: 'border-color 0.2s',
   },
   buttonRow: {
