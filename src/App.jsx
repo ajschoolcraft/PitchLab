@@ -7,13 +7,10 @@ import Landing from './pages/Landing'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Record from './pages/Record'
-<<<<<<< HEAD
-import ScriptGeneratorV2 from './pages/ScriptGeneratorV2'
-=======
 import ScriptGenerator from './pages/ScriptGenerator'
 import Profile from './pages/Profile'
 import NotFound from './pages/NotFound'
->>>>>>> 1eca1caacbcbb66c89ed5eca3e3ca81275aa9fc8
+
 
 function App() {
   return (
@@ -35,7 +32,7 @@ function App() {
           } />
           <Route path="/script-generator" element={
             <ProtectedRoute>
-              <ScriptGeneratorV2 />
+              <ScriptGenerator />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={
