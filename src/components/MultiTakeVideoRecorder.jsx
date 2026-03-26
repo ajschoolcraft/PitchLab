@@ -81,7 +81,7 @@ const MultiTakeVideoRecorder = () => {
       startRecordingNow();
     }
   };
-  
+
   const startRecordingNow = async () => {
     // Prevent double-start with flag
     if (isStartingRef.current) {
@@ -125,15 +125,11 @@ const MultiTakeVideoRecorder = () => {
       }
     } catch (err) {
       alert('Could not access camera');
-      isStartingRef.current = false;
       return;
     }
     
     console.log('🎬 Starting recorder...');
     chunksRef.current = [];
-    
-    const startTime = Date.now(); // YOUR FIX - Track start time
-    
     const recorder = new MediaRecorder(streamRef.current, {
       mimeType: 'video/webm;codecs=vp9',
       videoBitsPerSecond: 2500000
@@ -156,43 +152,22 @@ const MultiTakeVideoRecorder = () => {
         console.log('🎥 Blob size:', blob.size);
         const url = URL.createObjectURL(blob);
         
-        const actualDuration = Math.round((Date.now() - startTime) / 1000); // YOUR FIX - Calculate actual duration
+        const duration = recordingStartTimeRef.current 
+          ? Math.round((Date.now() - recordingStartTimeRef.current) / 1000)
+          : 0;
         
         setTakes(prev => [...prev, {
           id: Date.now(),
           url,
           blob,
           timestamp: new Date().toLocaleString(),
-          duration: actualDuration // YOUR FIX - Use actual duration
+          duration
         }]);
         
         setShowTeleprompter(false);
         if (timerRef.current) clearInterval(timerRef.current);
       }, 100);
     };
-    
-    mediaRecorderRef.current = recorder;
-    recorder.start(100);
-    setIsRecording(true);
-    setTimeRemaining(60);
-    recordingStartTimeRef.current = Date.now();
-    
-    isStartingRef.current = false;
-    
-    timerRef.current = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-          }
-          stopRecording();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
     
     mediaRecorderRef.current = recorder;
     recorder.start(100);
