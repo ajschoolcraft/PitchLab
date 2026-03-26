@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { supabase } from '../lib/supabase';
 import { AuthContext } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
+import Teleprompter from './Teleprompter';
 
-// Add console log at the very top
-console.log('========================================');
-console.log('🔥🔥🔥 VIDEO RECORDER LOADED - NEW VERSION');
-console.log('========================================');
-
-const MultiTakeVideoRecorder = ({ script }) => {
+const MultiTakeVideoRecorder = () => {
   const { user } = useContext(AuthContext);
+  const location = useLocation();
+  
+  // Get script
+  const scriptData = location.state?.script;
+  const script = typeof scriptData === 'string' ? scriptData : scriptData?.script_text || '';
   
   const [isRecording, setIsRecording] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
@@ -17,44 +19,36 @@ const MultiTakeVideoRecorder = ({ script }) => {
   const [takes, setTakes] = useState([]);
   const [selectedTake, setSelectedTake] = useState(null);
   const [downloadCounter, setDownloadCounter] = useState(1);
+  const [countdown, setCountdown] = useState(null);
+  const [showTeleprompter, setShowTeleprompter] = useState(false);
 
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
+  const isStartingRef = useRef(false);
+  const recordingStartTimeRef = useRef(null);
 
-  // Load counter
   useEffect(() => {
     const saved = localStorage.getItem('presentationCoachCounter');
     if (saved) setDownloadCounter(parseInt(saved));
   }, []);
 
-  // Request permissions
   const requestPermissions = async () => {
-    console.log('🎥 ENABLE CAMERA CLICKED');
     try {
-      console.log('📞 Requesting camera...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: 1280, height: 720, facingMode: 'user' },
         audio: true
       });
-
-      console.log('✅ Got stream!', stream);
-      console.log('📹 Active?', stream.active);
       
       streamRef.current = stream;
       
       if (videoRef.current) {
-        console.log('🔗 Connecting to video element...');
         videoRef.current.srcObject = stream;
-        
-        // Force play
         setTimeout(() => {
           if (videoRef.current) {
-            videoRef.current.play()
-              .then(() => console.log('▶️ Playing!'))
-              .catch(e => console.error('❌ Play failed:', e));
+            videoRef.current.play().catch(e => console.error('Play failed:', e));
           }
         }, 100);
       }
@@ -62,52 +56,159 @@ const MultiTakeVideoRecorder = ({ script }) => {
       setPermissionGranted(true);
       setError(null);
     } catch (err) {
-      console.error('❌ Camera error:', err);
+      console.error('Camera error:', err);
       setError('Camera access denied');
     }
   };
 
-  // Start recording
   const startRecording = () => {
-    if (!streamRef.current) return;
-
-    const startTime = Date.now();
+    if (script) {
+      setShowTeleprompter(true);
+      setCountdown(3);
+      
+      const interval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setCountdown(null);
+            startRecordingNow();
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      startRecordingNow();
+    }
+  };
+  
+  const startRecordingNow = async () => {
+    // Prevent double-start with flag
+    if (isStartingRef.current) {
+      console.log('⚠️ Already starting, skipping...');
+      return;
+    }
+    isStartingRef.current = true;
     
+    // Prevent double-start
+    if (mediaRecorderRef.current?.state === 'recording') {
+      console.log('⚠️ Already recording, skipping...');
+      isStartingRef.current = false;
+      return;
+    }
+    
+    // Stop and clear any existing recorder FIRST
+    if (mediaRecorderRef.current) {
+      const oldRecorder = mediaRecorderRef.current;
+      if (oldRecorder.state === 'recording' || oldRecorder.state === 'paused') {
+        await new Promise(resolve => {
+          oldRecorder.onstop = () => {
+            console.log('Old recorder stopped');
+            resolve();
+          };
+          oldRecorder.stop();
+        });
+      }
+      mediaRecorderRef.current = null;
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    // Always get fresh stream
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720, facingMode: 'user' },
+        audio: true
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      alert('Could not access camera');
+      isStartingRef.current = false;
+      return;
+    }
+    
+    console.log('🎬 Starting recorder...');
     chunksRef.current = [];
+    
+    const startTime = Date.now(); // YOUR FIX - Track start time
+    
     const recorder = new MediaRecorder(streamRef.current, {
-      mimeType: 'video/webm;codecs=vp8,opus',
+      mimeType: 'video/webm;codecs=vp9',
       videoBitsPerSecond: 2500000
     });
     
+    console.log('✅ Recorder created, starting...');
+    
     recorder.ondataavailable = (e) => {
-      if (e.data?.size > 0) chunksRef.current.push(e.data);
+      if (e.data?.size > 0) {
+        console.log('📦 Chunk:', e.data.size);
+        chunksRef.current.push(e.data);
+      }
     };
     
     recorder.onstop = () => {
-      const blob = new Blob(chunksRef.current, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
-
-      const actualDuration = Math.round((Date.now() - startTime) / 1000);
+      console.log('⏹ Stopped. Chunks:', chunksRef.current.length);
       
-      setTakes(prev => [...prev, {
-        id: Date.now(),
-        url,
-        blob,
-        timestamp: new Date().toLocaleString(),
-        duration: actualDuration
-      }]);
-      
-      if (timerRef.current) clearInterval(timerRef.current);
+      setTimeout(() => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        console.log('🎥 Blob size:', blob.size);
+        const url = URL.createObjectURL(blob);
+        
+        const actualDuration = Math.round((Date.now() - startTime) / 1000); // YOUR FIX - Calculate actual duration
+        
+        setTakes(prev => [...prev, {
+          id: Date.now(),
+          url,
+          blob,
+          timestamp: new Date().toLocaleString(),
+          duration: actualDuration // YOUR FIX - Use actual duration
+        }]);
+        
+        setShowTeleprompter(false);
+        if (timerRef.current) clearInterval(timerRef.current);
+      }, 100);
     };
     
     mediaRecorderRef.current = recorder;
     recorder.start(100);
     setIsRecording(true);
     setTimeRemaining(60);
+    recordingStartTimeRef.current = Date.now();
+    
+    isStartingRef.current = false;
     
     timerRef.current = setInterval(() => {
       setTimeRemaining(prev => {
         if (prev <= 1) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          stopRecording();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+    
+    mediaRecorderRef.current = recorder;
+    recorder.start(100);
+    setIsRecording(true);
+    setTimeRemaining(60);
+    recordingStartTimeRef.current = Date.now();
+    
+    isStartingRef.current = false;
+    
+    timerRef.current = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
           stopRecording();
           return 0;
         }
@@ -117,17 +218,22 @@ const MultiTakeVideoRecorder = ({ script }) => {
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current?.state !== 'inactive') {
+    console.log('🛑 stopRecording called. Recorder state:', mediaRecorderRef.current?.state);
+    if (mediaRecorderRef.current?.state === 'recording' || mediaRecorderRef.current?.state === 'paused') {
+      console.log('Stopping recorder...');
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    setIsRecording(false);
+    setShowTeleprompter(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
   };
 
-  const downloadTake = async (take) => {
-    const filename = `PresentationCoach_${String(downloadCounter).padStart(3, '0')}.webm`;
-    
-    // Keep existing download functionality
+  const downloadTake = (take) => {
+    const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+    const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
     const a = document.createElement('a');
     a.href = take.url;
     a.download = filename;
@@ -136,80 +242,37 @@ const MultiTakeVideoRecorder = ({ script }) => {
     const newCounter = downloadCounter + 1;
     setDownloadCounter(newCounter);
     localStorage.setItem('presentationCoachCounter', newCounter.toString());
-  
-    // ADD: Upload to Supabase
-    try {
-      if (!user) {
-        console.log('User not logged in - skipping Supabase upload');
-        return;
-      }
-  
-      // Convert blob URL to actual blob
-      const response = await fetch(take.url);
-      const blob = await response.blob();
-  
-      // Generate unique video ID
-      const videoId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      const storagePath = `${user.id}/${videoId}.webm`;
-  
-      console.log('Uploading video to Supabase...');
-  
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('videos')
-        .upload(storagePath, blob);
-  
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        return;
-      }
-  
-      console.log('Video uploaded successfully:', uploadData);
-  
-      // Get video duration
-      const videoDuration = take.duration || 0;
-  
-      // Save metadata to user_vids table
-      const { data: dbData, error: dbError } = await supabase
-        .from('user_vids')
-        .insert({
-          user_id: user.id,
-          script_id: script?.id || null,
-          storage_path: storagePath,
-          duration_secs: Math.round(videoDuration),
-          final_size_bytes: blob.size,
-          status: 'draft'
-        })
-        .select();
-  
-      if (dbError) {
-        console.error('Database error:', dbError);
-        return;
-      }
-  
-      console.log('Video metadata saved to database:', dbData);
-      alert('Video saved to your account!');
-  
-    } catch (error) {
-      console.error('Error uploading to Supabase:', error);
-    }
   };
 
   const recordAnother = () => {
+    // Clear old recorder
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current = null;
+    }
+    
     setSelectedTake(null);
     setTimeRemaining(60);
     
     // Reconnect stream
-    if (streamRef.current && videoRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-    }
+    setTimeout(() => {
+      if (streamRef.current && videoRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.play();
+      }
+    }, 200);
   };
 
   const selectTake = (take) => {
     setSelectedTake(take);
+    // Force video reload
+    setTimeout(() => {
+      const videoEl = document.querySelector('video[controls]');
+      if (videoEl) {
+        videoEl.load();
+      }
+    }, 50);
   };
 
-  // Cleanup
   useEffect(() => {
     return () => {
       if (streamRef.current) {
@@ -218,16 +281,49 @@ const MultiTakeVideoRecorder = ({ script }) => {
       takes.forEach(t => URL.revokeObjectURL(t.url));
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [takes]);
+  }, []);
 
-  // Reconnect stream when returning to camera view
   useEffect(() => {
     if (permissionGranted && !selectedTake && streamRef.current && videoRef.current) {
-      console.log('🔄 Reconnecting stream...');
       videoRef.current.srcObject = streamRef.current;
     }
   }, [permissionGranted, selectedTake]);
 
+  // TELEPROMPTER OVERLAY
+  if (showTeleprompter && script) {
+    return (
+      <>
+        <div style={styles.teleprompterWrapper}></div>
+        
+        <div style={styles.videoCorner}>
+          <video ref={videoRef} autoPlay playsInline muted style={styles.videoPreview} />
+          
+          {countdown !== null && (
+            <div style={styles.countdownOverlay}>
+              <div style={styles.countdownNumber}>{countdown}</div>
+              <div style={styles.countdownText}>Get ready...</div>
+            </div>
+          )}
+          
+          {isRecording && (
+            <div style={styles.recordingBadge}>
+              <span style={styles.recDot}>●</span> {timeRemaining}s
+            </div>
+          )}
+        </div>
+
+        {isRecording && (
+          <button onClick={stopRecording} style={styles.stopFloating}>
+            ⏹ Stop
+          </button>
+        )}
+        
+        <Teleprompter script={script} onClose={() => { stopRecording(); setShowTeleprompter(false); }} />
+      </>
+    );
+  }
+
+  // NORMAL VIEW
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -246,33 +342,28 @@ const MultiTakeVideoRecorder = ({ script }) => {
           </div>
         )}
 
-        {/* PERMISSION VIEW */}
         {!permissionGranted && takes.length === 0 && (
           <div style={styles.section}>
-            <p style={styles.desc}>
-              Record multiple takes and choose your best one.
-            </p>
+            <p style={styles.desc}>Record multiple takes and choose your best one.</p>
+            {script && (
+              <div style={styles.scriptPreview}>
+                <strong>📜 Script Ready</strong>
+                <p>{script.substring(0, 150)}...</p>
+              </div>
+            )}
             <button onClick={requestPermissions} style={styles.primaryBtn}>
               Enable Camera
             </button>
           </div>
         )}
 
-        {/* RECORDING VIEW */}
         {permissionGranted && !selectedTake && (
           <div>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              style={styles.video}
-            />
+            <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
             
             {isRecording && (
               <div style={styles.recording}>
-                <span style={styles.dot}>●</span>
-                Recording: {timeRemaining}s
+                <span style={styles.dot}>●</span> Recording: {timeRemaining}s
               </div>
             )}
 
@@ -296,10 +387,9 @@ const MultiTakeVideoRecorder = ({ script }) => {
           </div>
         )}
 
-        {/* PLAYBACK VIEW */}
         {selectedTake && (
           <div>
-            <video src={selectedTake.url} controls style={styles.video} />
+            <video src={selectedTake.url} controls style={styles.videoPlayback} />
             
             <div style={styles.takeInfo}>
               <strong>Take #{takes.findIndex(t => t.id === selectedTake.id) + 1}</strong>
@@ -334,7 +424,7 @@ const MultiTakeVideoRecorder = ({ script }) => {
             </div>
 
             <p style={styles.hint}>
-              Next: PresentationCoach_{String(downloadCounter).padStart(3, '0')}.webm
+              Next: PresentationCoach_{user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}_{String(downloadCounter).padStart(3, '0')}.webm
             </p>
           </div>
         )}
@@ -413,7 +503,23 @@ const styles = {
     marginBottom: '20px',
     lineHeight: '1.5',
   },
+  scriptPreview: {
+    backgroundColor: '#fff8f0',
+    padding: '16px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+  },
   video: {
+    width: '100%',
+    minHeight: '300px',
+    borderRadius: '8px',
+    backgroundColor: '#000',
+    marginBottom: '16px',
+    display: 'block',
+    objectFit: 'cover',
+    transform: 'scaleX(-1)',
+  },
+  videoPlayback: {
     width: '100%',
     minHeight: '300px',
     borderRadius: '8px',
@@ -423,14 +529,13 @@ const styles = {
     objectFit: 'cover',
   },
   recording: {
-    position: 'absolute',
-    top: '16px',
-    left: '16px',
     backgroundColor: 'rgba(0,0,0,0.7)',
     color: 'white',
     padding: '8px 12px',
     borderRadius: '20px',
     fontSize: '14px',
+    marginBottom: '16px',
+    textAlign: 'center',
   },
   dot: {
     color: '#ff4444',
@@ -517,6 +622,88 @@ const styles = {
     color: '#666',
     marginTop: '16px',
     textAlign: 'center',
+  },
+  
+  // Teleprompter
+  teleprompterWrapper: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    pointerEvents: 'none',
+  },
+  videoCorner: {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    width: '280px',
+    zIndex: 10001,
+    borderRadius: '12px',
+    overflow: 'hidden',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+    pointerEvents: 'auto',
+  },
+  videoPreview: {
+    width: '100%',
+    height: 'auto',
+    display: 'block',
+    transform: 'scaleX(-1)',
+  },
+  countdownOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countdownNumber: {
+    fontSize: '60px',
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  countdownText: {
+    fontSize: '14px',
+    color: '#fff',
+    marginTop: '8px',
+  },
+  recordingBadge: {
+    position: 'absolute',
+    top: '12px',
+    left: '12px',
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    color: 'white',
+    padding: '6px 12px',
+    borderRadius: '16px',
+    fontSize: '13px',
+    fontWeight: '600',
+  },
+  recDot: {
+    color: '#ff4444',
+    fontSize: '14px',
+  },
+  stopFloating: {
+    position: 'fixed',
+    bottom: '40px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
+    borderRadius: '30px',
+    padding: '14px 32px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    boxShadow: '0 6px 28px rgba(220,53,69,0.6)',
+    zIndex: 10002,
+    pointerEvents: 'auto',
   },
 };
 

@@ -18,7 +18,7 @@ export default function ScriptGeneratorV2() {
 
   const [questions, setQuestions] = useState([])
   const [loadingQuestions, setLoadingQuestions] = useState(true)
-
+  
   // Fetch questions from Supabase
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -46,20 +46,20 @@ export default function ScriptGeneratorV2() {
     
     fetchQuestions()
   }, [])
-
+  
   const handleAnswerChange = (questionId, value) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: value
     }))
   }
-
+  
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     }
   }
-
+  
   const handleBack = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1)
@@ -111,7 +111,7 @@ export default function ScriptGeneratorV2() {
   const currentQ = questions[currentQuestion]
   const progress = ((currentQuestion + 1) / questions.length) * 100
 
-  // ADD THIS CHECK BEFORE RETURN
+// Loading check
 if (loadingQuestions) {
   return (
     <div style={styles.container}>
@@ -120,6 +120,129 @@ if (loadingQuestions) {
           <div style={styles.spinner}></div>
           <p>Loading questions...</p>
         </div>
+      </div>
+    </div>
+  )
+}
+
+if (!questions || questions.length === 0) {
+  return (
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <div style={styles.error}>
+          <p>No questions found. Please check database.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const currentQ = questions[currentQuestion]
+const progress = ((currentQuestion + 1) / questions.length) * 100
+
+return (
+  <div style={styles.container}>
+    <div style={styles.content}>
+      {/* Header */}
+      <div style={styles.header}>
+        <h1 style={styles.title}>Create Your Pitch Script</h1>
+        <p style={styles.subtitle}>
+          Answer these questions thoughtfully - they'll help us create an authentic pitch
+        </p>
+      </div>
+
+        {/* Progress Bar */}
+        <div style={styles.progressBar}>
+          <div style={{ ...styles.progressFill, width: `${progress}%` }} />
+        </div>
+        <p style={styles.progressText}>
+          Question {currentQuestion + 1} of {questions.length}
+        </p>
+
+        {/* Question Card */}
+        {!script && (
+          <div style={styles.card}>
+            <h2 style={styles.questionText}>{currentQ.text}</h2>
+            
+            <textarea
+              value={answers[currentQ.id]}
+              onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
+              placeholder={currentQ.placeholder}
+              style={styles.textarea}
+              rows={6}
+            />
+
+            {/* Navigation Buttons */}
+            <div style={styles.buttonRow}>
+              {currentQuestion > 0 && (
+                <button onClick={handleBack} style={styles.buttonSecondary}>
+                  ← Back
+                </button>
+              )}
+              
+              {currentQuestion < questions.length - 1 ? (
+                <button 
+                  onClick={handleNext} 
+                  style={styles.buttonPrimary}
+                  disabled={!answers[currentQ.id].trim()}
+                >
+                  Next →
+                </button>
+              ) : (
+                <button 
+                  onClick={handleGenerateScript} 
+                  style={styles.buttonPrimary}
+                  disabled={!answers[currentQ.id].trim() || loading}
+                >
+                  {loading ? 'Generating...' : '✨ Generate My Script'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div style={styles.loading}>
+            <div style={styles.spinner} />
+            <p>Crafting your authentic pitch...</p>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div style={styles.error}>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {/* Generated Script */}
+        {script && !loading && (
+          <div style={styles.card}>
+            <h2 style={styles.successTitle}>Your Script Is Ready! 🎉</h2>
+            <div style={styles.scriptBox}>
+              <pre style={styles.scriptText}>{script}</pre>
+            </div>
+            
+            <div style={styles.buttonRow}>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(script)
+                  alert('Script copied to clipboard!')
+                }}
+                style={styles.buttonSecondary}
+              >
+                📋 Copy Script
+              </button>
+              <button 
+                onClick={() => navigate('/record')}
+                style={styles.buttonPrimary}
+              >
+                🎥 Record This Script
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -244,6 +367,7 @@ if (!questions || questions.length === 0) {
     </div>
   )
 }
+
 
 const styles = {
   container: {
