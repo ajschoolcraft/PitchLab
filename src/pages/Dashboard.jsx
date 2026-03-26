@@ -520,12 +520,35 @@ export default function Dashboard() {
                           {new Date(script.created_at).toLocaleDateString()}
                         </div>
                       </div>
-                      <button 
-                        className="pc-dash-script-btn"
-                        onClick={() => navigate('/record', { state: { script } })}
-                      >
-                        Use →
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          className="pc-dash-script-btn"
+                          onClick={() => navigate('/record', { state: { script } })}
+                        >
+                          Use →
+                        </button>
+                        <button 
+                          className="pc-dash-script-btn"
+                          style={{ background: '#fee2e2', borderColor: '#fecaca', color: '#dc2626' }}
+                          onClick={async () => {
+                            if (!window.confirm('Delete this script?')) return;
+                            
+                            const { error } = await supabase
+                              .from('scripts')
+                              .delete()
+                              .eq('id', script.id);
+                            
+                            if (error) {
+                              alert('Error deleting script');
+                              return;
+                            }
+                            
+                            setScripts(scripts.filter(s => s.id !== script.id));
+                          }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   ))}
                   {scripts.length > 3 && (
@@ -563,32 +586,71 @@ export default function Dashboard() {
                           {new Date(recording.created_at).toLocaleDateString()} • {recording.duration_secs}s
                         </div>
                       </div>
-                      <button 
-                        className="pc-dash-recording-btn"
-                        onClick={async () => {
-                          try {
-                            const { data, error } = await supabase.storage
-                              .from('videos')
-                              .download(recording.storage_path);
-                            
-                            if (error) {
-                              console.error('Download error:', error);
-                              alert('Error loading video: ' + error.message);
-                              return;
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          className="pc-dash-recording-btn"
+                          onClick={async () => {
+                            try {
+                              const { data, error } = await supabase.storage
+                                .from('videos')
+                                .download(recording.storage_path);
+                              
+                              if (error) {
+                                console.error('Download error:', error);
+                                alert('Error loading video: ' + error.message);
+                                return;
+                              }
+                              
+                              const url = URL.createObjectURL(data);
+                              window.open(url, '_blank');
+                              
+                            } catch (err) {
+                              console.error('Error:', err);
+                              alert('Failed to load video');
                             }
+                          }}
+                        >
+                          View
+                        </button>
+                        <button 
+                          className="pc-dash-recording-btn"
+                          style={{ background: '#fee2e2', borderColor: '#fecaca', color: '#dc2626' }}
+                          onClick={async () => {
+                            if (!window.confirm('Delete this recording?')) return;
                             
-                            // Create blob URL and open in new tab
-                            const url = URL.createObjectURL(data);
-                            window.open(url, '_blank');
-                            
-                          } catch (err) {
-                            console.error('Error:', err);
-                            alert('Failed to load video');
-                          }
-                        }}
-                      >
-                        View
-                      </button>
+                            try {
+                              // Delete from storage
+                              const { error: storageError } = await supabase.storage
+                                .from('videos')
+                                .remove([recording.storage_path]);
+                              
+                              if (storageError) {
+                                console.error('Storage delete error:', storageError);
+                              }
+                              
+                              // Delete from database
+                              const { error: dbError } = await supabase
+                                .from('user_vids')
+                                .delete()
+                                .eq('id', recording.id);
+                              
+                              if (dbError) {
+                                alert('Error deleting recording');
+                                return;
+                              }
+                              
+                              // Update UI
+                              setRecordings(recordings.filter(r => r.id !== recording.id));
+                              
+                            } catch (err) {
+                              console.error('Delete error:', err);
+                              alert('Failed to delete recording');
+                            }
+                          }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   ))}
                   {recordings.length > 3 && (

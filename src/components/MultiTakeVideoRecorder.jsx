@@ -70,6 +70,8 @@ const MultiTakeVideoRecorder = ({ script }) => {
   // Start recording
   const startRecording = () => {
     if (!streamRef.current) return;
+
+    const startTime = Date.now();
     
     chunksRef.current = [];
     const recorder = new MediaRecorder(streamRef.current, {
@@ -84,13 +86,15 @@ const MultiTakeVideoRecorder = ({ script }) => {
     recorder.onstop = () => {
       const blob = new Blob(chunksRef.current, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
+
+      const actualDuration = Math.round((Date.now() - startTime) / 1000);
       
       setTakes(prev => [...prev, {
         id: Date.now(),
         url,
         blob,
         timestamp: new Date().toLocaleString(),
-        duration: 60 - timeRemaining
+        duration: actualDuration
       }]);
       
       if (timerRef.current) clearInterval(timerRef.current);
