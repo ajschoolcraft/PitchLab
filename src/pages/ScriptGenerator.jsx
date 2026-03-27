@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { AuthContext } from '../context/AuthContext'
 
-export default function ScriptGeneratorV2() {
+export default function ScriptGenerator() {
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
   
