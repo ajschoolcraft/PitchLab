@@ -214,9 +214,11 @@ const MultiTakeVideoRecorder = () => {
     }, 100);
   };
 
-  const downloadTake = (take) => {
+  const downloadTake = async (take) => {
     const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
+    
+    // Keep existing download functionality
     const a = document.createElement('a');
     a.href = take.url;
     a.download = filename;
@@ -225,6 +227,63 @@ const MultiTakeVideoRecorder = () => {
     const newCounter = downloadCounter + 1;
     setDownloadCounter(newCounter);
     localStorage.setItem('presentationCoachCounter', newCounter.toString());
+  
+    // Upload to Supabase
+    try {
+      if (!user) {
+        console.log('User not logged in - skipping Supabase upload');
+        return;
+      }
+  
+      // Convert blob URL to actual blob
+      const response = await fetch(take.url);
+      const blob = await response.blob();
+  
+      // Generate unique video ID
+      const videoId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      const storagePath = `${user.id}/${videoId}.webm`;
+  
+      console.log('Uploading video to Supabase...');
+  
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('videos')
+        .upload(storagePath, blob);
+  
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return;
+      }
+  
+      console.log('Video uploaded successfully:', uploadData);
+  
+      // Get video duration
+      const videoDuration = take.duration || 0;
+  
+      // Save metadata to user_vids table
+      const { data: dbData, error: dbError } = await supabase
+        .from('user_vids')
+        .insert({
+          user_id: user.id,
+          script_id: script?.id || null,
+          storage_path: storagePath,
+          duration_secs: Math.round(videoDuration),
+          final_size_bytes: blob.size,
+          status: 'draft'
+        })
+        .select();
+  
+      if (dbError) {
+        console.error('Database error:', dbError);
+        return;
+      }
+  
+      console.log('Video metadata saved to database:', dbData);
+      alert('Video saved to your account!');
+  
+    } catch (error) {
+      console.error('Error uploading to Supabase:', error);
+    }
   };
 
   const recordAnother = () => {

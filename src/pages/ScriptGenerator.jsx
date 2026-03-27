@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { AuthContext } from '../context/AuthContext'
 
-export default function ScriptGenerator() {
+export default function ScriptGeneratorV2() {
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
   
@@ -15,9 +15,11 @@ export default function ScriptGenerator() {
   const [script, setScript] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
   const [questions, setQuestions] = useState([])
   const [loadingQuestions, setLoadingQuestions] = useState(true)
-  
+
+  // Fetch questions from Supabase
   useEffect(() => {
     const fetchQuestions = async () => {
       const { data, error } = await supabase
@@ -28,10 +30,10 @@ export default function ScriptGenerator() {
       
       if (error) {
         console.error('Error fetching questions:', error)
-        setLoadingQuestions(false)
         return
       }
       
+      // Format for use in component
       const formattedQuestions = data.map(q => ({
         id: q.question_id,
         text: q.question_text,
@@ -44,20 +46,20 @@ export default function ScriptGenerator() {
     
     fetchQuestions()
   }, [])
-  
+
   const handleAnswerChange = (questionId, value) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: value
     }))
   }
-  
+
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     }
   }
-  
+
   const handleBack = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1)
@@ -69,7 +71,8 @@ export default function ScriptGenerator() {
     setError('')
 
     try {
-      const response = await fetch('/api/generate-script', {
+      // Call the API to generate script
+      const response = await fetch('https://ai-presentation-coach.vercel.app/api/generate-script', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -84,6 +87,7 @@ export default function ScriptGenerator() {
       const data = await response.json()
       setScript(data.script)
 
+      // Save to Supabase
       const { error: dbError } = await supabase
         .from('scripts')
         .insert({
@@ -94,7 +98,7 @@ export default function ScriptGenerator() {
           status: 'draft'
         })
 
-      if (dbError) console.error('DB save error:', dbError)
+      if (dbError) throw dbError
 
     } catch (err) {
       console.error('Error:', err)
@@ -104,37 +108,39 @@ export default function ScriptGenerator() {
     }
   }
 
-  if (loadingQuestions) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.content}>
-          <div style={styles.loading}>
-            <div style={styles.spinner}></div>
-            <p>Loading questions...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!questions || questions.length === 0) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.content}>
-          <div style={styles.error}>
-            <p>No questions found. Please check the database.</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   const currentQ = questions[currentQuestion]
   const progress = ((currentQuestion + 1) / questions.length) * 100
+
+  // ADD THIS CHECK BEFORE RETURN
+if (loadingQuestions) {
+  return (
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <div style={styles.loading}>
+          <div style={styles.spinner}></div>
+          <p>Loading questions...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+if (!questions || questions.length === 0) {
+  return (
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <div style={styles.error}>
+          <p>No questions found. Please create the questions table in Supabase.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
   return (
     <div style={styles.container}>
       <div style={styles.content}>
+        {/* Header */}
         <div style={styles.header}>
           <h1 style={styles.title}>Create Your Pitch Script</h1>
           <p style={styles.subtitle}>
@@ -142,6 +148,7 @@ export default function ScriptGenerator() {
           </p>
         </div>
 
+        {/* Progress Bar */}
         <div style={styles.progressBar}>
           <div style={{ ...styles.progressFill, width: `${progress}%` }} />
         </div>
@@ -149,6 +156,7 @@ export default function ScriptGenerator() {
           Question {currentQuestion + 1} of {questions.length}
         </p>
 
+        {/* Question Card */}
         {!script && (
           <div style={styles.card}>
             <h2 style={styles.questionText}>{currentQ.text}</h2>
@@ -161,6 +169,7 @@ export default function ScriptGenerator() {
               rows={6}
             />
 
+            {/* Navigation Buttons */}
             <div style={styles.buttonRow}>
               {currentQuestion > 0 && (
                 <button onClick={handleBack} style={styles.buttonSecondary}>
@@ -172,7 +181,7 @@ export default function ScriptGenerator() {
                 <button 
                   onClick={handleNext} 
                   style={styles.buttonPrimary}
-                  disabled={!answers[currentQ.id]?.trim()}
+                  disabled={!answers[currentQ.id].trim()}
                 >
                   Next →
                 </button>
@@ -180,7 +189,7 @@ export default function ScriptGenerator() {
                 <button 
                   onClick={handleGenerateScript} 
                   style={styles.buttonPrimary}
-                  disabled={!answers[currentQ.id]?.trim() || loading}
+                  disabled={!answers[currentQ.id].trim() || loading}
                 >
                   {loading ? 'Generating...' : '✨ Generate My Script'}
                 </button>
@@ -189,6 +198,7 @@ export default function ScriptGenerator() {
           </div>
         )}
 
+        {/* Loading State */}
         {loading && (
           <div style={styles.loading}>
             <div style={styles.spinner} />
@@ -196,12 +206,14 @@ export default function ScriptGenerator() {
           </div>
         )}
 
+        {/* Error */}
         {error && (
           <div style={styles.error}>
             <p>{error}</p>
           </div>
         )}
 
+        {/* Generated Script */}
         {script && !loading && (
           <div style={styles.card}>
             <h2 style={styles.successTitle}>Your Script Is Ready! 🎉</h2>
@@ -267,7 +279,7 @@ const styles = {
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#3b82f6',
     transition: 'width 0.3s ease',
   },
   progressText: {
@@ -291,7 +303,7 @@ const styles = {
   },
   textarea: {
     width: '100%',
-    maxWidth: '600px',
+    maxWidth: '600px',        // ← Add this
     padding: '16px',
     fontSize: '16px',
     border: '2px solid #e5e7eb',
@@ -299,10 +311,9 @@ const styles = {
     fontFamily: 'inherit',
     resize: 'vertical',
     marginBottom: '24px',
-    margin: '0 auto 24px',
-    display: 'block',
+    margin: '0 auto 24px',    // ← Change this line (centers it)
+    display: 'block',         // ← Add this
     transition: 'border-color 0.2s',
-    boxSizing: 'border-box',
   },
   buttonRow: {
     display: 'flex',
@@ -314,7 +325,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     color: 'white',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#3b82f6',
     border: 'none',
     borderRadius: '12px',
     cursor: 'pointer',
@@ -339,7 +350,7 @@ const styles = {
     width: '40px',
     height: '40px',
     border: '4px solid #f3f4f6',
-    borderTop: '4px solid #FF9500',
+    borderTop: '4px solid #3b82f6',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
     margin: '0 auto 16px',
