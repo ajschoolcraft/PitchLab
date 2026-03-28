@@ -13,6 +13,7 @@ export default function ScriptGenerator() {
     q7: '', q8: '', q9: '', q10: '', q11: ''
   })
   const [script, setScript] = useState('')
+  const [savedScript, setSavedScript] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -88,7 +89,7 @@ export default function ScriptGenerator() {
       setScript(data.script)
 
       // Save to Supabase
-      const { error: dbError } = await supabase
+      const { data: dbData, error: dbError } = await supabase
         .from('scripts')
         .insert({
           user_id: user.id,
@@ -97,8 +98,10 @@ export default function ScriptGenerator() {
           user_answers: answers,
           status: 'draft'
         })
+        .select()
 
       if (dbError) throw dbError
+      if (dbData?.[0]) setSavedScript(dbData[0])
 
     } catch (err) {
       console.error('Error:', err)
@@ -231,8 +234,8 @@ if (!questions || questions.length === 0) {
               >
                 📋 Copy Script
               </button>
-              <button 
-                onClick={() => navigate('/record')}
+              <button
+                onClick={() => navigate('/record', { state: { script: savedScript || { script_text: script } } })}
                 style={styles.buttonPrimary}
               >
                 🎥 Record This Script

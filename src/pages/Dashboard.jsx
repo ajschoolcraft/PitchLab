@@ -327,6 +327,8 @@ export default function Dashboard() {
           flex-direction: column;
           gap: 8px;
           margin-bottom: 16px;
+          max-height: 400px;
+          overflow-y: auto;
         }
 
         .pc-dash-script-item {
@@ -387,6 +389,8 @@ export default function Dashboard() {
           flex-direction: column;
           gap: 8px;
           margin-bottom: 16px;
+          max-height: 400px;
+          overflow-y: auto;
         }
 
         .pc-dash-recording-item {
@@ -404,7 +408,29 @@ export default function Dashboard() {
         }
 
         .pc-dash-recording-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
           flex: 1;
+        }
+        .pc-dash-recording-thumb {
+          width: 80px;
+          height: 60px;
+          border-radius: 6px;
+          object-fit: cover;
+          flex-shrink: 0;
+          background: #f0f0f0;
+        }
+        .pc-dash-recording-thumb-placeholder {
+          width: 80px;
+          height: 60px;
+          border-radius: 6px;
+          flex-shrink: 0;
+          background: #f0f0f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
         }
 
         .pc-dash-recording-title {
@@ -419,9 +445,15 @@ export default function Dashboard() {
           color: #9ca3af;
         }
 
+        .pc-dash-recording-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex-shrink: 0;
+        }
         .pc-dash-recording-btn {
-          padding: 6px 12px;
-          font-size: 13px;
+          padding: 5px 10px;
+          font-size: 12px;
           font-weight: 600;
           color: #FF9500;
           background: white;
@@ -429,6 +461,7 @@ export default function Dashboard() {
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
+          white-space: nowrap;
         }
 
         .pc-dash-recording-btn:hover {
@@ -510,7 +543,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="pc-dash-script-list">
-                  {scripts.slice(0, 3).map(script => (
+                  {scripts.map(script => (
                     <div key={script.id} className="pc-dash-script-item">
                       <div className="pc-dash-script-info">
                       <div className="pc-dash-script-title">
@@ -551,11 +584,6 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
-                  {scripts.length > 3 && (
-                    <div className="pc-dash-script-more">
-                      +{scripts.length - 3} more scripts
-                    </div>
-                  )}
                 </div>
               )}
               <button className="pc-dash-card-btn" onClick={() => navigate('/script-generator')}>
@@ -576,18 +604,30 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="pc-dash-recording-list">
-                  {recordings.slice(0, 3).map((recording, index) => (
+                  {recordings.map((recording, index) => (
                     <div key={recording.id} className="pc-dash-recording-item">
                       <div className="pc-dash-recording-info">
+                        {recording.thumbnail_url ? (
+                          <img
+                            src={recording.thumbnail_url}
+                            alt="Thumbnail"
+                            className="pc-dash-recording-thumb"
+                          />
+                        ) : (
+                          <div className="pc-dash-recording-thumb-placeholder">🎥</div>
+                        )}
+                        <div>
                         <div className="pc-dash-recording-title">
+                          {recording.status === 'final' && <span title="Final">⭐ </span>}
                           Recording #{recordings.length - index}
                         </div>
                         <div className="pc-dash-recording-meta">
                           {new Date(recording.created_at).toLocaleDateString()} • {recording.duration_secs}s
                         </div>
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button 
+                      <div className="pc-dash-recording-actions">
+                        <button
                           className="pc-dash-recording-btn"
                           onClick={async () => {
                             try {
@@ -612,7 +652,32 @@ export default function Dashboard() {
                         >
                           View
                         </button>
-                        <button 
+                        <button
+                          className="pc-dash-recording-btn"
+                          style={recording.status === 'final'
+                            ? { background: '#FFF8F0', borderColor: '#FF9500', color: '#FF9500' }
+                            : {}
+                          }
+                          onClick={async () => {
+                            const newStatus = recording.status === 'final' ? 'draft' : 'final';
+                            const { error } = await supabase
+                              .from('user_vids')
+                              .update({ status: newStatus })
+                              .eq('id', recording.id);
+
+                            if (error) {
+                              alert('Error updating status');
+                              return;
+                            }
+
+                            setRecordings(recordings.map(r =>
+                              r.id === recording.id ? { ...r, status: newStatus } : r
+                            ));
+                          }}
+                        >
+                          {recording.status === 'final' ? 'Unmark' : 'Mark Final'}
+                        </button>
+                        <button
                           className="pc-dash-recording-btn"
                           style={{ background: '#fee2e2', borderColor: '#fecaca', color: '#dc2626' }}
                           onClick={async () => {
@@ -653,11 +718,6 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
-                  {recordings.length > 3 && (
-                    <div className="pc-dash-recording-more">
-                      +{recordings.length - 3} more recordings
-                    </div>
-                  )}
                 </div>
               )}
               <button className="pc-dash-card-btn" onClick={() => navigate('/record')}>
