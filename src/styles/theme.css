@@ -1,0 +1,143 @@
+/* src/styles/theme.css */
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Colors */
+  --bg-primary: #0f0f13;
+  --bg-surface: #161621;
+  --bg-elevated: #1c1c2a;
+  --text-primary: #f5f0eb;
+  --text-secondary: #c4b8a9;
+  --text-muted: #7a7168;
+  --accent: #d4a574;
+  --accent-hover: #c4905a;
+  --accent-light: #e8c9a0;
+  --accent-glow: rgba(212, 165, 116, 0.08);
+  --accent-glow-strong: rgba(212, 165, 116, 0.14);
+  --success: #4ade80;
+  --error: #f87171;
+  --border: rgba(212, 165, 116, 0.12);
+  --border-strong: rgba(212, 165, 116, 0.25);
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --space-9: 64px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-pill: 100px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px var(--accent-glow);
+  --shadow-card-hover: 0 8px 32px var(--accent-glow-strong);
+  --shadow-button: 0 4px 16px rgba(196, 144, 90, 0.25);
+  --shadow-input-focus: 0 0 0 2px rgba(212, 165, 116, 0.25);
+
+  /* Nav height for spacing */
+  --nav-height-mobile: 64px;
+  --nav-height-desktop: 68px;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--accent-light);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Keyframes */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utility */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Page wrapper — adds padding for mobile bottom nav */
+.page {
+  min-height: 100vh;
+  padding: var(--space-7) var(--space-4) calc(var(--nav-height-mobile) + var(--space-7));
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: var(--space-8) var(--space-6) var(--space-8);
+  }
+}
