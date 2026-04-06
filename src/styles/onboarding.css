@@ -1,0 +1,169 @@
+/* src/styles/onboarding.css */
+
+.ob-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  animation: fadeIn 0.4s ease;
+}
+
+.ob-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-8) var(--space-7);
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  animation: slideUp 0.5s ease;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+}
+
+.ob-skip {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-5);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-body);
+  padding: 4px var(--space-2);
+  transition: color 0.2s;
+}
+.ob-skip:hover {
+  color: var(--text-primary);
+}
+
+.ob-icon-wrap {
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-xl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin-bottom: var(--space-6);
+  background: rgba(212, 165, 116, 0.1);
+}
+
+.ob-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-3);
+  line-height: 1.2;
+}
+
+.ob-subtitle {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-2);
+}
+
+.ob-detail {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-7);
+}
+
+/* Progress Dots */
+.ob-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+.ob-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+.ob-dot.active {
+  width: 28px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+  border-color: transparent;
+}
+.ob-dot.done {
+  background: var(--accent);
+  border-color: transparent;
+}
+
+/* Buttons */
+.ob-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+.ob-btn-back {
+  padding: 14px var(--space-6);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+}
+.ob-btn-back:hover {
+  background: rgba(212, 165, 116, 0.08);
+  color: var(--text-primary);
+}
+.ob-btn-next {
+  flex: 1;
+  padding: 14px var(--space-6);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bg-primary);
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+  box-shadow: var(--shadow-button);
+}
+.ob-btn-next:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(196, 144, 90, 0.4);
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .ob-card {
+    padding: var(--space-7) var(--space-6) var(--space-6);
+  }
+  .ob-title {
+    font-size: 22px;
+  }
+  .ob-subtitle {
+    font-size: 15px;
+  }
+  .ob-icon-wrap {
+    width: 72px;
+    height: 72px;
+    font-size: 32px;
+  }
+}
