@@ -3,6 +3,7 @@ import { useState, useContext, useEffect } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import Onboarding from '../components/Onboarding'
 import { supabase } from '../lib/supabase'
+import '../styles/dashboard.css'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -11,8 +12,8 @@ export default function Dashboard() {
   const [recordings, setRecordings] = useState([])
   const [showOnboarding, setShowOnboarding] = useState(false)
 
-  console.log('🔵 Dashboard loaded')  // ← ADD THIS
-  console.log('🔵 User:', user)  // ← ADD THIS
+  console.log('🔵 Dashboard loaded')
+  console.log('🔵 User:', user)
 
   useEffect(() => {
     const done = localStorage.getItem('pc_onboarding_complete')
@@ -25,8 +26,8 @@ export default function Dashboard() {
     const fetchData = async () => {
       if (!user) return
 
-      console.log('Current user ID:', user.id)  // ← ADD THIS
-      console.log('Fetching scripts...')  // ← ADD THIS
+      console.log('Current user ID:', user.id)
+      console.log('Fetching scripts...')
 
       try {
         // Fetch scripts
@@ -37,10 +38,10 @@ export default function Dashboard() {
           .order('created_at', { ascending: false })
 
         if (scriptsError) throw scriptsError
-        
-        console.log('Scripts fetched:', scriptsData)  // ← ADD THIS
-        console.log('Number of scripts:', scriptsData?.length)  // ← ADD THIS
-        
+
+        console.log('Scripts fetched:', scriptsData)
+        console.log('Number of scripts:', scriptsData?.length)
+
         setScripts(scriptsData || [])
 
         // Fetch recordings (videos)
@@ -51,9 +52,9 @@ export default function Dashboard() {
           .order('created_at', { ascending: false })
 
         if (recordingsError) throw recordingsError
-        
-        console.log('Recordings fetched:', recordingsData)  // ← ADD THIS
-        
+
+        console.log('Recordings fetched:', recordingsData)
+
         setRecordings(recordingsData || [])
 
       } catch (error) {
@@ -79,503 +80,89 @@ export default function Dashboard() {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
-
-        .pc-dash {
-          min-height: 100vh;
-          background: #FAFAFA;
-          font-family: 'DM Sans', -apple-system, sans-serif;
-          padding: 40px 24px 80px;
-        }
-        .pc-dash-inner {
-          max-width: 1100px;
-          margin: 0 auto;
-        }
-        .pc-dash-header {
-          margin-bottom: 36px;
-        }
-        .pc-dash-greeting {
-          font-size: 15px;
-          color: #FF9500;
-          font-weight: 600;
-          margin-bottom: 6px;
-        }
-        .pc-dash-title {
-          font-size: 32px;
-          font-weight: 700;
-          color: #1a1a1a;
-          letter-spacing: -0.5px;
-          margin-bottom: 6px;
-        }
-        .pc-dash-subtitle {
-          font-size: 15px;
-          color: #9ca3af;
-        }
-
-        .pc-dash-stats {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 16px;
-          margin-bottom: 32px;
-        }
-        .pc-dash-stat {
-          background: white;
-          border-radius: 16px;
-          padding: 24px;
-          border: 1px solid #f0f0f0;
-          text-align: center;
-          transition: all 0.2s ease;
-        }
-        .pc-dash-stat:hover {
-          border-color: #FFE0B2;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-        }
-        .pc-dash-stat-num {
-          font-size: 36px;
-          font-weight: 700;
-          color: #FF9500;
-          line-height: 1;
-          margin-bottom: 8px;
-        }
-        .pc-dash-stat-label {
-          font-size: 13px;
-          color: #6b7280;
-          font-weight: 500;
-        }
-
-        .pc-dash-action-card {
-          background: linear-gradient(135deg, #FF9500, #FF6B00);
-          border-radius: 20px;
-          padding: 40px;
-          margin-bottom: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 32px;
-          position: relative;
-          overflow: hidden;
-        }
-        .pc-dash-action-card::after {
-          content: '';
-          position: absolute;
-          top: -60px;
-          right: -60px;
-          width: 200px;
-          height: 200px;
-          background: rgba(255,255,255,0.1);
-          border-radius: 50%;
-        }
-        .pc-dash-action-text h2 {
-          font-size: 24px;
-          font-weight: 700;
-          color: white;
-          margin-bottom: 8px;
-        }
-        .pc-dash-action-text p {
-          font-size: 15px;
-          color: rgba(255,255,255,0.85);
-          margin: 0;
-          line-height: 1.5;
-        }
-        .pc-dash-action-btn {
-          padding: 14px 32px;
-          font-size: 16px;
-          font-weight: 700;
-          color: #FF9500;
-          background: white;
-          border: none;
-          border-radius: 12px;
-          cursor: pointer;
-          font-family: inherit;
-          transition: all 0.2s ease;
-          white-space: nowrap;
-          position: relative;
-          z-index: 1;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-        .pc-dash-action-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 24px rgba(0,0,0,0.15);
-        }
-
-        .pc-dash-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          margin-bottom: 32px;
-        }
-        .pc-dash-card {
-          background: white;
-          border-radius: 20px;
-          padding: 32px;
-          border: 1px solid #f0f0f0;
-          transition: all 0.2s ease;
-        }
-        .pc-dash-card:hover {
-          border-color: #FFE0B2;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-        }
-        .pc-dash-card-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 24px;
-        }
-        .pc-dash-card-icon {
-          width: 44px;
-          height: 44px;
-          background: #FFF8F0;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-        }
-        .pc-dash-card-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #1a1a1a;
-        }
-
-        .pc-dash-empty {
-          text-align: center;
-          padding: 32px 16px;
-        }
-        .pc-dash-empty-icon {
-          font-size: 40px;
-          margin-bottom: 12px;
-          display: block;
-          opacity: 0.6;
-        }
-        .pc-dash-empty-title {
-          font-size: 15px;
-          font-weight: 600;
-          color: #9ca3af;
-          margin-bottom: 4px;
-        }
-        .pc-dash-empty-text {
-          font-size: 13px;
-          color: #c4c9d1;
-        }
-
-        .pc-dash-card-btn {
-          width: 100%;
-          padding: 14px;
-          font-size: 15px;
-          font-weight: 600;
-          color: #FF9500;
-          background: #FFF8F0;
-          border: 1.5px solid #FFE0B2;
-          border-radius: 12px;
-          cursor: pointer;
-          font-family: inherit;
-          transition: all 0.2s ease;
-          margin-top: 20px;
-        }
-        .pc-dash-card-btn:hover {
-          background: #FF9500;
-          color: white;
-          border-color: #FF9500;
-        }
-
-        .pc-dash-quick {
-          background: white;
-          border-radius: 20px;
-          padding: 32px;
-          border: 1px solid #f0f0f0;
-        }
-        .pc-dash-quick-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #1a1a1a;
-          margin-bottom: 20px;
-        }
-        .pc-dash-quick-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
-        }
-        .pc-dash-quick-item {
-          padding: 20px 12px;
-          border-radius: 14px;
-          border: 1.5px solid #f0f0f0;
-          background: white;
-          cursor: pointer;
-          text-align: center;
-          transition: all 0.2s ease;
-          font-family: inherit;
-        }
-        .pc-dash-quick-item:hover {
-          border-color: #FF9500;
-          background: #FFF8F0;
-          transform: translateY(-2px);
-        }
-        .pc-dash-quick-icon {
-          font-size: 24px;
-          display: block;
-          margin-bottom: 8px;
-        }
-        .pc-dash-quick-label {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1a1a1a;
-        }
-        .pc-dash-script-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-bottom: 16px;
-          max-height: 400px;
-          overflow-y: auto;
-        }
-
-        .pc-dash-script-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 12px;
-          background: #FAFAFA;
-          border-radius: 8px;
-          transition: all 0.2s ease;
-        }
-
-        .pc-dash-script-item:hover {
-          background: #F0F0F0;
-        }
-
-        .pc-dash-script-info {
-          flex: 1;
-        }
-
-        .pc-dash-script-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #1a1a1a;
-          margin-bottom: 2px;
-        }
-
-        .pc-dash-script-date {
-          font-size: 12px;
-          color: #9ca3af;
-        }
-
-        .pc-dash-script-btn {
-          padding: 6px 12px;
-          font-size: 13px;
-          font-weight: 600;
-          color: #FF9500;
-          background: white;
-          border: 1px solid #FFE0B2;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .pc-dash-script-btn:hover {
-          background: #FFF8F0;
-          border-color: #FF9500;
-        }
-
-        .pc-dash-script-more {
-          font-size: 13px;
-          color: #9ca3af;
-          text-align: center;
-          padding: 8px;
-        }
-        .pc-dash-recording-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-bottom: 16px;
-          max-height: 400px;
-          overflow-y: auto;
-        }
-
-        .pc-dash-recording-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 12px;
-          background: #FAFAFA;
-          border-radius: 8px;
-          transition: all 0.2s ease;
-        }
-
-        .pc-dash-recording-item:hover {
-          background: #F0F0F0;
-        }
-
-        .pc-dash-recording-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          flex: 1;
-        }
-        .pc-dash-recording-thumb {
-          width: 80px;
-          height: 60px;
-          border-radius: 6px;
-          object-fit: cover;
-          flex-shrink: 0;
-          background: #f0f0f0;
-        }
-        .pc-dash-recording-thumb-placeholder {
-          width: 80px;
-          height: 60px;
-          border-radius: 6px;
-          flex-shrink: 0;
-          background: #f0f0f0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 24px;
-        }
-
-        .pc-dash-recording-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #1a1a1a;
-          margin-bottom: 2px;
-        }
-
-        .pc-dash-recording-meta {
-          font-size: 12px;
-          color: #9ca3af;
-        }
-
-        .pc-dash-recording-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          flex-shrink: 0;
-        }
-        .pc-dash-recording-btn {
-          padding: 5px 10px;
-          font-size: 12px;
-          font-weight: 600;
-          color: #FF9500;
-          background: white;
-          border: 1px solid #FFE0B2;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          white-space: nowrap;
-        }
-
-        .pc-dash-recording-btn:hover {
-          background: #FFF8F0;
-          border-color: #FF9500;
-        }
-
-        .pc-dash-recording-more {
-          font-size: 13px;
-          color: #9ca3af;
-          text-align: center;
-          padding: 8px;
-        }
-        @media (max-width: 768px) {
-          .pc-dash { padding: 24px 16px 60px; }
-          .pc-dash-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-          .pc-dash-stat { padding: 16px 12px; }
-          .pc-dash-stat-num { font-size: 28px; }
-          .pc-dash-action-card { 
-            flex-direction: column; 
-            padding: 28px; 
-            text-align: center; 
-          }
-          .pc-dash-action-btn { width: 100%; }
-          .pc-dash-grid { grid-template-columns: 1fr; }
-          .pc-dash-quick-grid { grid-template-columns: repeat(2, 1fr); }
-          .pc-dash-title { font-size: 26px; }
-        }
-      `}</style>
-
       {showOnboarding && (
         <Onboarding onComplete={() => setShowOnboarding(false)} />
       )}
 
-      <div className="pc-dash">
-        <div className="pc-dash-inner">
-          <div className="pc-dash-header">
-            <p className="pc-dash-greeting">{getTimeGreeting()}</p>
-            <h1 className="pc-dash-title">Welcome back, {getUserName()} 👋</h1>
-            <p className="pc-dash-subtitle">Here's your coaching overview</p>
+      <div className="dash">
+        <div className="dash-inner">
+          <div className="dash-header">
+            <p className="dash-greeting">{getTimeGreeting()}</p>
+            <h1 className="dash-title">Welcome back, {getUserName()} 👋</h1>
+            <p className="dash-subtitle">Here's your coaching overview</p>
           </div>
 
-          <div className="pc-dash-stats">
-            <div className="pc-dash-stat">
-              <div className="pc-dash-stat-num">{scripts.length}</div>
-              <div className="pc-dash-stat-label">Scripts Created</div>
+          <div className="dash-stats">
+            <div className="stat-card">
+              <div className="stat-number">{scripts.length}</div>
+              <div className="stat-label">Scripts Created</div>
             </div>
-            <div className="pc-dash-stat">
-              <div className="pc-dash-stat-num">{recordings.length}</div>
-              <div className="pc-dash-stat-label">Videos Recorded</div>
+            <div className="stat-card">
+              <div className="stat-number">{recordings.length}</div>
+              <div className="stat-label">Videos Recorded</div>
             </div>
-            <div className="pc-dash-stat">
-              <div className="pc-dash-stat-num">0</div>
-              <div className="pc-dash-stat-label">Videos Shared</div>
+            <div className="stat-card">
+              <div className="stat-number">0</div>
+              <div className="stat-label">Videos Shared</div>
             </div>
           </div>
 
-          <div className="pc-dash-action-card">
-            <div className="pc-dash-action-text">
+          <div className="dash-action-card">
+            <div className="dash-action-text">
               <h2>Ready to create your next presentation?</h2>
               <p>Our AI will help you write a clear, structured script in seconds.</p>
             </div>
-            <button className="pc-dash-action-btn" onClick={() => navigate('/script-generator')}>
+            <button className="btn-primary" onClick={() => navigate('/script-generator')}>
               ✨ Create Script
             </button>
           </div>
 
-          <div className="pc-dash-grid">
-            <div className="pc-dash-card">
-              <div className="pc-dash-card-header">
-                <div className="pc-dash-card-icon">📝</div>
-                <span className="pc-dash-card-title">My Scripts</span>
+          <div className="dash-grid">
+            <div className="card">
+              <div className="card-header">
+                <div className="card-icon">📝</div>
+                <span className="card-title">My Scripts</span>
               </div>
               {scripts.length === 0 ? (
-                <div className="pc-dash-empty">
-                  <span className="pc-dash-empty-icon">💡</span>
-                  <p className="pc-dash-empty-title">No scripts yet</p>
-                  <p className="pc-dash-empty-text">Create your first AI-powered script</p>
+                <div className="empty-state">
+                  <span className="empty-state-icon">💡</span>
+                  <p className="empty-state-title">No scripts yet</p>
+                  <p className="empty-state-text">Create your first AI-powered script</p>
                 </div>
               ) : (
-                <div className="pc-dash-script-list">
+                <div className="dash-item-list">
                   {scripts.map(script => (
-                    <div key={script.id} className="pc-dash-script-item">
-                      <div className="pc-dash-script-info">
-                      <div className="pc-dash-script-title">
+                    <div key={script.id} className="dash-item">
+                      <div className="dash-item-info">
+                      <div className="dash-item-title">
                         Script #{scripts.length - scripts.indexOf(script)}
                       </div>
-                        <div className="pc-dash-script-date">
+                        <div className="dash-item-date">
                           {new Date(script.created_at).toLocaleDateString()}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button 
-                          className="pc-dash-script-btn"
+                      <div className="dash-item-actions">
+                        <button
+                          className="dash-item-btn"
                           onClick={() => navigate('/record', { state: { script } })}
                         >
                           Use →
                         </button>
-                        <button 
-                          className="pc-dash-script-btn"
-                          style={{ background: '#fee2e2', borderColor: '#fecaca', color: '#dc2626' }}
+                        <button
+                          className="dash-item-btn dash-item-btn-delete"
                           onClick={async () => {
                             if (!window.confirm('Delete this script?')) return;
-                            
+
                             const { error } = await supabase
                               .from('scripts')
                               .delete()
                               .eq('id', script.id);
-                            
+
                             if (error) {
                               alert('Error deleting script');
                               return;
                             }
-                            
+
                             setScripts(scripts.filter(s => s.id !== script.id));
                           }}
                         >
@@ -586,64 +173,64 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
-              <button className="pc-dash-card-btn" onClick={() => navigate('/script-generator')}>
+              <button className="dash-card-btn" onClick={() => navigate('/script-generator')}>
                 ✍️ New Script
               </button>
             </div>
 
-            <div className="pc-dash-card">
-              <div className="pc-dash-card-header">
-                <div className="pc-dash-card-icon">🎥</div>
-                <span className="pc-dash-card-title">My Recordings</span>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-icon">🎥</div>
+                <span className="card-title">My Recordings</span>
               </div>
               {recordings.length === 0 ? (
-                <div className="pc-dash-empty">
-                  <span className="pc-dash-empty-icon">🎬</span>
-                  <p className="pc-dash-empty-title">No recordings yet</p>
-                  <p className="pc-dash-empty-text">Record your first presentation</p>
+                <div className="empty-state">
+                  <span className="empty-state-icon">🎬</span>
+                  <p className="empty-state-title">No recordings yet</p>
+                  <p className="empty-state-text">Record your first presentation</p>
                 </div>
               ) : (
-                <div className="pc-dash-recording-list">
+                <div className="dash-item-list">
                   {recordings.map((recording, index) => (
-                    <div key={recording.id} className="pc-dash-recording-item">
-                      <div className="pc-dash-recording-info">
+                    <div key={recording.id} className="dash-item">
+                      <div className="dash-recording-info">
                         {recording.thumbnail_url ? (
                           <img
                             src={recording.thumbnail_url}
                             alt="Thumbnail"
-                            className="pc-dash-recording-thumb"
+                            className="dash-recording-thumb"
                           />
                         ) : (
-                          <div className="pc-dash-recording-thumb-placeholder">🎥</div>
+                          <div className="dash-recording-thumb-placeholder">🎥</div>
                         )}
                         <div>
-                        <div className="pc-dash-recording-title">
+                        <div className="dash-item-title">
                           {recording.status === 'final' && <span title="Final">⭐ </span>}
                           Recording #{recordings.length - index}
                         </div>
-                        <div className="pc-dash-recording-meta">
+                        <div className="dash-item-date">
                           {new Date(recording.created_at).toLocaleDateString()} • {recording.duration_secs}s
                         </div>
                         </div>
                       </div>
-                      <div className="pc-dash-recording-actions">
+                      <div className="dash-recording-actions">
                         <button
-                          className="pc-dash-recording-btn"
+                          className="dash-item-btn"
                           onClick={async () => {
                             try {
                               const { data, error } = await supabase.storage
                                 .from('videos')
                                 .download(recording.storage_path);
-                              
+
                               if (error) {
                                 console.error('Download error:', error);
                                 alert('Error loading video: ' + error.message);
                                 return;
                               }
-                              
+
                               const url = URL.createObjectURL(data);
                               window.open(url, '_blank');
-                              
+
                             } catch (err) {
                               console.error('Error:', err);
                               alert('Failed to load video');
@@ -653,11 +240,7 @@ export default function Dashboard() {
                           View
                         </button>
                         <button
-                          className="pc-dash-recording-btn"
-                          style={recording.status === 'final'
-                            ? { background: '#FFF8F0', borderColor: '#FF9500', color: '#FF9500' }
-                            : {}
-                          }
+                          className={`dash-item-btn ${recording.status === 'final' ? 'dash-item-btn-active' : ''}`}
                           onClick={async () => {
                             const newStatus = recording.status === 'final' ? 'draft' : 'final';
                             const { error } = await supabase
@@ -678,35 +261,34 @@ export default function Dashboard() {
                           {recording.status === 'final' ? 'Unmark' : 'Mark Final'}
                         </button>
                         <button
-                          className="pc-dash-recording-btn"
-                          style={{ background: '#fee2e2', borderColor: '#fecaca', color: '#dc2626' }}
+                          className="dash-item-btn dash-item-btn-delete"
                           onClick={async () => {
                             if (!window.confirm('Delete this recording?')) return;
-                            
+
                             try {
                               // Delete from storage
                               const { error: storageError } = await supabase.storage
                                 .from('videos')
                                 .remove([recording.storage_path]);
-                              
+
                               if (storageError) {
                                 console.error('Storage delete error:', storageError);
                               }
-                              
+
                               // Delete from database
                               const { error: dbError } = await supabase
                                 .from('user_vids')
                                 .delete()
                                 .eq('id', recording.id);
-                              
+
                               if (dbError) {
                                 alert('Error deleting recording');
                                 return;
                               }
-                              
+
                               // Update UI
                               setRecordings(recordings.filter(r => r.id !== recording.id));
-                              
+
                             } catch (err) {
                               console.error('Delete error:', err);
                               alert('Failed to delete recording');
@@ -720,30 +302,30 @@ export default function Dashboard() {
                   ))}
                 </div>
               )}
-              <button className="pc-dash-card-btn" onClick={() => navigate('/record')}>
+              <button className="dash-card-btn" onClick={() => navigate('/record')}>
                 🎤 Start Recording
               </button>
             </div>
           </div>
 
-          <div className="pc-dash-quick">
-            <h3 className="pc-dash-quick-title">Quick Actions</h3>
-            <div className="pc-dash-quick-grid">
-              <button className="pc-dash-quick-item" onClick={() => navigate('/script-generator')}>
-                <span className="pc-dash-quick-icon">✨</span>
-                <span className="pc-dash-quick-label">AI Script</span>
+          <div className="dash-quick">
+            <h3 className="dash-quick-title">Quick Actions</h3>
+            <div className="dash-quick-grid">
+              <button className="dash-quick-item" onClick={() => navigate('/script-generator')}>
+                <span className="dash-quick-icon">✨</span>
+                <span className="dash-quick-label">AI Script</span>
               </button>
-              <button className="pc-dash-quick-item" onClick={() => navigate('/record')}>
-                <span className="pc-dash-quick-icon">🎥</span>
-                <span className="pc-dash-quick-label">Record</span>
+              <button className="dash-quick-item" onClick={() => navigate('/record')}>
+                <span className="dash-quick-icon">🎥</span>
+                <span className="dash-quick-label">Record</span>
               </button>
-              <button className="pc-dash-quick-item" onClick={() => navigate('/record')}>
-                <span className="pc-dash-quick-icon">📖</span>
-                <span className="pc-dash-quick-label">Teleprompter</span>
+              <button className="dash-quick-item" onClick={() => navigate('/record')}>
+                <span className="dash-quick-icon">📖</span>
+                <span className="dash-quick-label">Teleprompter</span>
               </button>
-              <button className="pc-dash-quick-item" onClick={() => navigate('/record')}>
-                <span className="pc-dash-quick-icon">📤</span>
-                <span className="pc-dash-quick-label">Share</span>
+              <button className="dash-quick-item" onClick={() => navigate('/record')}>
+                <span className="dash-quick-icon">📤</span>
+                <span className="dash-quick-label">Share</span>
               </button>
             </div>
           </div>
