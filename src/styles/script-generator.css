@@ -1,0 +1,138 @@
+/* src/styles/script-generator.css */
+
+.scriptgen {
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-5) 100px;
+}
+.scriptgen-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Header */
+.scriptgen-header {
+  margin-bottom: var(--space-7);
+  text-align: center;
+}
+.scriptgen-title {
+  font-size: 32px;
+  margin-bottom: var(--space-2);
+}
+.scriptgen-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+/* Progress */
+.scriptgen-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+}
+.scriptgen-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-hover), var(--accent));
+  transition: width 0.3s ease;
+}
+.scriptgen-progress-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-6);
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+/* Card */
+.scriptgen-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-7);
+}
+
+/* Question */
+.scriptgen-question {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: var(--space-5);
+}
+
+/* Textarea */
+.scriptgen-textarea {
+  width: 100%;
+  max-width: 600px;
+  padding: var(--space-4);
+  font-size: 16px;
+  font-family: var(--font-body);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  resize: vertical;
+  margin: 0 auto var(--space-6);
+  display: block;
+  transition: border-color 0.2s ease;
+}
+.scriptgen-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-input-focus);
+}
+.scriptgen-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* Button row */
+.scriptgen-buttons {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+/* Loading */
+.scriptgen-loading {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--text-secondary);
+}
+
+/* Success title */
+.scriptgen-success-title {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+
+/* Script result box */
+.scriptgen-script-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  max-height: 400px;
+  overflow-y: auto;
+}
+.scriptgen-script-text {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .scriptgen { padding: var(--space-6) var(--space-4) 100px; }
+  .scriptgen-card { padding: var(--space-6) var(--space-5); }
+  .scriptgen-title { font-size: 26px; }
+  .scriptgen-buttons { flex-direction: column; }
+  .scriptgen-buttons .btn-primary,
+  .scriptgen-buttons .btn-secondary { width: 100%; }
+}
