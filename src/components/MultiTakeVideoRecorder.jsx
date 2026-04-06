@@ -3,15 +3,16 @@ import { supabase } from '../lib/supabase';
 import { AuthContext } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import Teleprompter from './Teleprompter';
+import '../styles/recorder.css';
 
 const MultiTakeVideoRecorder = () => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
-  
+
   // Get script
   const scriptData = location.state?.script;
   const script = typeof scriptData === 'string' ? scriptData : scriptData?.script_text || '';
-  
+
   const [isRecording, setIsRecording] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(60);
@@ -41,9 +42,9 @@ const MultiTakeVideoRecorder = () => {
         video: { width: 1280, height: 720, facingMode: 'user' },
         audio: true
       });
-      
+
       streamRef.current = stream;
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setTimeout(() => {
@@ -52,7 +53,7 @@ const MultiTakeVideoRecorder = () => {
           }
         }, 100);
       }
-      
+
       setPermissionGranted(true);
       setError(null);
     } catch (err) {
@@ -65,7 +66,7 @@ const MultiTakeVideoRecorder = () => {
     if (script) {
       setShowTeleprompter(true);
       setCountdown(3);
-      
+
       const interval = setInterval(() => {
         setCountdown(prev => {
           if (prev <= 1) {
@@ -89,14 +90,14 @@ const MultiTakeVideoRecorder = () => {
       return;
     }
     isStartingRef.current = true;
-    
+
     // Prevent double-start
     if (mediaRecorderRef.current?.state === 'recording') {
       console.log('⚠️ Already recording, skipping...');
       isStartingRef.current = false;
       return;
     }
-    
+
     // Stop and clear any existing recorder FIRST
     if (mediaRecorderRef.current) {
       const oldRecorder = mediaRecorderRef.current;
@@ -112,7 +113,7 @@ const MultiTakeVideoRecorder = () => {
       mediaRecorderRef.current = null;
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-    
+
     // Always get fresh stream
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -127,35 +128,35 @@ const MultiTakeVideoRecorder = () => {
       alert('Could not access camera');
       return;
     }
-    
+
     console.log('🎬 Starting recorder...');
     chunksRef.current = [];
     const recorder = new MediaRecorder(streamRef.current, {
       mimeType: 'video/webm;codecs=vp9',
       videoBitsPerSecond: 2500000
     });
-    
+
     console.log('✅ Recorder created, starting...');
-    
+
     recorder.ondataavailable = (e) => {
       if (e.data?.size > 0) {
         console.log('📦 Chunk:', e.data.size);
         chunksRef.current.push(e.data);
       }
     };
-    
+
     recorder.onstop = () => {
       console.log('⏹ Stopped. Chunks:', chunksRef.current.length);
-      
+
       setTimeout(() => {
         const blob = new Blob(chunksRef.current, { type: 'video/webm' });
         console.log('🎥 Blob size:', blob.size);
         const url = URL.createObjectURL(blob);
-        
-        const duration = recordingStartTimeRef.current 
+
+        const duration = recordingStartTimeRef.current
           ? Math.round((Date.now() - recordingStartTimeRef.current) / 1000)
           : 0;
-        
+
         setTakes(prev => [...prev, {
           id: Date.now(),
           url,
@@ -163,20 +164,20 @@ const MultiTakeVideoRecorder = () => {
           timestamp: new Date().toLocaleString(),
           duration
         }]);
-        
+
         setShowTeleprompter(false);
         if (timerRef.current) clearInterval(timerRef.current);
       }, 100);
     };
-    
+
     mediaRecorderRef.current = recorder;
     recorder.start(100);
     setIsRecording(true);
     setTimeRemaining(60);
     recordingStartTimeRef.current = Date.now();
-    
+
     isStartingRef.current = false;
-    
+
     timerRef.current = setInterval(() => {
       setTimeRemaining(prev => {
         if (prev <= 1) {
@@ -204,7 +205,7 @@ const MultiTakeVideoRecorder = () => {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    
+
     // Reconnect stream to video after stopping
     setTimeout(() => {
       if (streamRef.current && videoRef.current && !selectedTake) {
@@ -248,44 +249,44 @@ const MultiTakeVideoRecorder = () => {
   const downloadTake = async (take) => {
     const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
-    
+
     // Keep existing download functionality
     const a = document.createElement('a');
     a.href = take.url;
     a.download = filename;
     a.click();
-    
+
     const newCounter = downloadCounter + 1;
     setDownloadCounter(newCounter);
     localStorage.setItem('presentationCoachCounter', newCounter.toString());
-  
+
     // Upload to Supabase
     try {
       if (!user) {
         console.log('User not logged in - skipping Supabase upload');
         return;
       }
-  
+
       // Convert blob URL to actual blob
       const response = await fetch(take.url);
       const blob = await response.blob();
-  
+
       // Generate unique video ID
       const videoId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const storagePath = `${user.id}/${videoId}.webm`;
-  
+
       console.log('Uploading video to Supabase...');
-  
+
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
         .upload(storagePath, blob);
-  
+
       if (uploadError) {
         console.error('Upload error:', uploadError);
         return;
       }
-  
+
       console.log('Video uploaded successfully:', uploadData);
 
       // Generate thumbnail from first frame
@@ -326,15 +327,15 @@ const MultiTakeVideoRecorder = () => {
           status: 'draft'
         })
         .select();
-  
+
       if (dbError) {
         console.error('Database error:', dbError);
         return;
       }
-  
+
       console.log('Video metadata saved to database:', dbData);
       alert('Video saved to your account!');
-  
+
     } catch (error) {
       console.error('Error uploading to Supabase:', error);
     }
@@ -345,7 +346,7 @@ const MultiTakeVideoRecorder = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current = null;
     }
-    
+
     setSelectedTake(null);
     setTimeRemaining(60);
   };
@@ -388,31 +389,31 @@ const MultiTakeVideoRecorder = () => {
   if (showTeleprompter && script) {
     return (
       <>
-        <div style={styles.teleprompterWrapper}></div>
-        
-        <div style={styles.videoCorner}>
-          <video ref={videoRef} autoPlay playsInline muted style={styles.videoPreview} />
-          
+        <div className="recorder-tp-wrapper"></div>
+
+        <div className="recorder-video-corner">
+          <video ref={videoRef} autoPlay playsInline muted />
+
           {countdown !== null && (
-            <div style={styles.countdownOverlay}>
-              <div style={styles.countdownNumber}>{countdown}</div>
-              <div style={styles.countdownText}>Get ready...</div>
+            <div className="recorder-countdown-overlay">
+              <div className="recorder-countdown-number">{countdown}</div>
+              <div className="recorder-countdown-text">Get ready...</div>
             </div>
           )}
-          
+
           {isRecording && (
-            <div style={styles.recordingBadge}>
-              <span style={styles.recDot}>●</span> {timeRemaining}s
+            <div className="recorder-recording-badge">
+              <span className="recorder-rec-dot">●</span> {timeRemaining}s
             </div>
           )}
         </div>
 
         {isRecording && (
-          <button onClick={stopRecording} style={styles.stopFloating}>
+          <button onClick={stopRecording} className="recorder-stop-floating">
             ⏹ Stop
           </button>
         )}
-        
+
         <Teleprompter script={script} onClose={() => { stopRecording(); setShowTeleprompter(false); }} />
       </>
     );
@@ -420,388 +421,104 @@ const MultiTakeVideoRecorder = () => {
 
   // NORMAL VIEW
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={styles.header}>
-          <h2 style={styles.title}>🎥 Multi-Take Video Recorder</h2>
-          <button onClick={() => window.location.href = '/dashboard'} style={styles.dashBtn}>
-            Dashboard
+    <div className="recorder-card">
+      <div className="recorder-header">
+        <h2 className="recorder-title">🎥 Multi-Take Video Recorder</h2>
+      </div>
+
+      {error && <div className="error-box">{error}</div>}
+
+      {takes.length > 0 && (
+        <div className="recorder-counter">
+          📹 {takes.length} take{takes.length !== 1 ? 's' : ''} recorded
+        </div>
+      )}
+
+      {!permissionGranted && takes.length === 0 && (
+        <div className="recorder-section">
+          <p className="recorder-desc">Record multiple takes and choose your best one.</p>
+          {script && (
+            <div className="recorder-script-preview">
+              <strong>📜 Script Ready</strong>
+              <p>{script.substring(0, 150)}...</p>
+            </div>
+          )}
+          <button onClick={requestPermissions} className="btn-primary">
+            Enable Camera
           </button>
         </div>
+      )}
 
-        {error && <div style={styles.error}>{error}</div>}
+      {permissionGranted && !selectedTake && (
+        <div>
+          <video ref={videoRef} autoPlay playsInline muted className="recorder-video" />
 
-        {takes.length > 0 && (
-          <div style={styles.counter}>
-            📹 {takes.length} take{takes.length !== 1 ? 's' : ''} recorded
-          </div>
-        )}
+          {isRecording && (
+            <div className="recorder-recording">
+              <span className="recorder-dot">●</span> Recording: {timeRemaining}s
+            </div>
+          )}
 
-        {!permissionGranted && takes.length === 0 && (
-          <div style={styles.section}>
-            <p style={styles.desc}>Record multiple takes and choose your best one.</p>
-            {script && (
-              <div style={styles.scriptPreview}>
-                <strong>📜 Script Ready</strong>
-                <p>{script.substring(0, 150)}...</p>
-              </div>
+          <div className="recorder-controls">
+            {!isRecording ? (
+              <button onClick={startRecording} className="recorder-record-btn">
+                {takes.length > 0 ? 'Record\nAnother' : 'Start\nRecording'}
+              </button>
+            ) : (
+              <button onClick={stopRecording} className="recorder-stop-btn">
+                Stop
+              </button>
             )}
-            <button onClick={requestPermissions} style={styles.primaryBtn}>
-              Enable Camera
+          </div>
+
+          {takes.length > 0 && (
+            <button onClick={() => selectTake(takes[takes.length - 1])} className="btn-secondary" style={{ width: '100%' }}>
+              Review Takes ({takes.length})
+            </button>
+          )}
+        </div>
+      )}
+
+      {selectedTake && (
+        <div>
+          <video src={selectedTake.url} controls className="recorder-video-playback" />
+
+          <div className="recorder-take-info">
+            <strong>Take #{takes.findIndex(t => t.id === selectedTake.id) + 1}</strong>
+            <span>{selectedTake.timestamp}</span>
+          </div>
+
+          {takes.length > 1 && (
+            <div className="recorder-takes-list">
+              <h3>All Takes:</h3>
+              {takes.map((take, i) => (
+                <button
+                  key={take.id}
+                  onClick={() => selectTake(take)}
+                  className={`recorder-take-btn ${selectedTake.id === take.id ? 'recorder-take-btn-active' : ''}`}
+                >
+                  #{i + 1} ({take.duration}s)
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="recorder-controls">
+            <button onClick={() => downloadTake(selectedTake)} className="btn-primary">
+              Download
+            </button>
+            <button onClick={recordAnother} className="btn-secondary">
+              Record Another
             </button>
           </div>
-        )}
 
-        {permissionGranted && !selectedTake && (
-          <div>
-            <video ref={videoRef} autoPlay playsInline muted style={styles.video} />
-            
-            {isRecording && (
-              <div style={styles.recording}>
-                <span style={styles.dot}>●</span> Recording: {timeRemaining}s
-              </div>
-            )}
-
-            <div style={styles.controls}>
-              {!isRecording ? (
-                <button onClick={startRecording} style={styles.recordBtn}>
-                  {takes.length > 0 ? 'Record\nAnother' : 'Start\nRecording'}
-                </button>
-              ) : (
-                <button onClick={stopRecording} style={styles.stopBtn}>
-                  Stop
-                </button>
-              )}
-            </div>
-
-            {takes.length > 0 && (
-              <button onClick={() => selectTake(takes[takes.length - 1])} style={styles.secondaryBtn}>
-                Review Takes ({takes.length})
-              </button>
-            )}
-          </div>
-        )}
-
-        {selectedTake && (
-          <div>
-            <video src={selectedTake.url} controls style={styles.videoPlayback} />
-            
-            <div style={styles.takeInfo}>
-              <strong>Take #{takes.findIndex(t => t.id === selectedTake.id) + 1}</strong>
-              <span>{selectedTake.timestamp}</span>
-            </div>
-
-            {takes.length > 1 && (
-              <div style={styles.takesList}>
-                <h3>All Takes:</h3>
-                {takes.map((take, i) => (
-                  <button
-                    key={take.id}
-                    onClick={() => selectTake(take)}
-                    style={{
-                      ...styles.takeBtn,
-                      ...(selectedTake.id === take.id ? styles.takeBtnActive : {})
-                    }}
-                  >
-                    #{i + 1} ({take.duration}s)
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div style={styles.controls}>
-              <button onClick={() => downloadTake(selectedTake)} style={styles.primaryBtn}>
-                Download
-              </button>
-              <button onClick={recordAnother} style={styles.secondaryBtn}>
-                Record Another
-              </button>
-            </div>
-
-            <p style={styles.hint}>
-              Next: PresentationCoach_{user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}_{String(downloadCounter).padStart(3, '0')}.webm
-            </p>
-          </div>
-        )}
-      </div>
+          <p className="recorder-hint">
+            Next: PresentationCoach_{user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}_{String(downloadCounter).padStart(3, '0')}.webm
+          </p>
+        </div>
+      )}
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    padding: '20px',
-    fontFamily: '-apple-system, sans-serif',
-  },
-  card: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    padding: '24px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#333',
-    flex: 1,
-    textAlign: 'center',
-  },
-  dashBtn: {
-    position: 'absolute',
-    top: '24px',
-    right: '24px',
-    backgroundColor: '#6c757d',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '8px 16px',
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer',
-  },
-  counter: {
-    backgroundColor: '#e3f2fd',
-    border: '1px solid #90caf9',
-    borderRadius: '8px',
-    padding: '12px',
-    marginBottom: '16px',
-    textAlign: 'center',
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#1976d2',
-  },
-  error: {
-    backgroundColor: '#fee',
-    border: '1px solid #fcc',
-    borderRadius: '8px',
-    padding: '12px',
-    marginBottom: '16px',
-    color: '#c33',
-  },
-  section: {
-    textAlign: 'center',
-    padding: '20px 0',
-  },
-  desc: {
-    fontSize: '16px',
-    color: '#666',
-    marginBottom: '20px',
-    lineHeight: '1.5',
-  },
-  scriptPreview: {
-    backgroundColor: '#fff8f0',
-    border: '1px solid #FFE0B2',
-    color: '#333',
-    padding: '16px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-  },
-  video: {
-    width: '100%',
-    minHeight: '300px',
-    borderRadius: '8px',
-    backgroundColor: '#000',
-    marginBottom: '16px',
-    display: 'block',
-    objectFit: 'cover',
-    transform: 'scaleX(-1)',
-  },
-  videoPlayback: {
-    width: '100%',
-    minHeight: '300px',
-    borderRadius: '8px',
-    backgroundColor: '#000',
-    marginBottom: '16px',
-    display: 'block',
-    objectFit: 'cover',
-  },
-  recording: {
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    color: 'white',
-    padding: '8px 12px',
-    borderRadius: '20px',
-    fontSize: '14px',
-    marginBottom: '16px',
-    textAlign: 'center',
-  },
-  dot: {
-    color: '#ff4444',
-    fontSize: '20px',
-    marginRight: '8px',
-  },
-  controls: {
-    display: 'flex',
-    gap: '12px',
-    justifyContent: 'center',
-    marginBottom: '12px',
-  },
-  primaryBtn: {
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '12px 24px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-  },
-  secondaryBtn: {
-    backgroundColor: '#6c757d',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '12px 24px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    width: '100%',
-  },
-  recordBtn: {
-    backgroundColor: '#dc3545',
-    color: 'white',
-    border: 'none',
-    borderRadius: '50%',
-    width: '80px',
-    height: '80px',
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(220,53,69,0.3)',
-    whiteSpace: 'pre-line',
-  },
-  stopBtn: {
-    backgroundColor: '#6c757d',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '12px 32px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-  },
-  takeInfo: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '12px',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '8px',
-    marginBottom: '16px',
-    fontSize: '14px',
-  },
-  takesList: {
-    marginBottom: '16px',
-  },
-  takeBtn: {
-    backgroundColor: '#f8f9fa',
-    border: '2px solid transparent',
-    borderRadius: '8px',
-    padding: '8px 16px',
-    margin: '4px',
-    cursor: 'pointer',
-    fontSize: '14px',
-  },
-  takeBtnActive: {
-    backgroundColor: '#e3f2fd',
-    border: '2px solid #007bff',
-  },
-  hint: {
-    fontSize: '14px',
-    color: '#666',
-    marginTop: '16px',
-    textAlign: 'center',
-  },
-  
-  // Teleprompter
-  teleprompterWrapper: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 999,
-    pointerEvents: 'none',
-  },
-  videoCorner: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    width: '280px',
-    zIndex: 10001,
-    borderRadius: '12px',
-    overflow: 'hidden',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-    pointerEvents: 'auto',
-  },
-  videoPreview: {
-    width: '100%',
-    height: 'auto',
-    display: 'block',
-    transform: 'scaleX(-1)',
-  },
-  countdownOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  countdownNumber: {
-    fontSize: '60px',
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  countdownText: {
-    fontSize: '14px',
-    color: '#fff',
-    marginTop: '8px',
-  },
-  recordingBadge: {
-    position: 'absolute',
-    top: '12px',
-    left: '12px',
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    color: 'white',
-    padding: '6px 12px',
-    borderRadius: '16px',
-    fontSize: '13px',
-    fontWeight: '600',
-  },
-  recDot: {
-    color: '#ff4444',
-    fontSize: '14px',
-  },
-  stopFloating: {
-    position: 'fixed',
-    bottom: '40px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: '#dc3545',
-    color: 'white',
-    border: 'none',
-    borderRadius: '30px',
-    padding: '14px 32px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    boxShadow: '0 6px 28px rgba(220,53,69,0.6)',
-    zIndex: 10002,
-    pointerEvents: 'auto',
-  },
 };
 
 export default MultiTakeVideoRecorder;

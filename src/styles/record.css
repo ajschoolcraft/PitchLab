@@ -1,0 +1,147 @@
+/* src/styles/record.css */
+
+.record {
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-6) 100px;
+}
+.record-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Header */
+.record-header {
+  margin-bottom: var(--space-7);
+}
+.record-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-body);
+}
+.record-title {
+  font-size: 32px;
+  margin-bottom: var(--space-2);
+}
+.record-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Script loaded notification */
+.record-script-notice {
+  background: rgba(212, 165, 116, 0.08);
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.record-script-notice-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.record-script-notice-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Teleprompter Card */
+.record-tp-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+.record-tp-info {
+  flex: 1;
+}
+.record-tp-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.record-tp-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.record-tp-input {
+  width: 100%;
+  padding: 14px var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-body);
+  resize: vertical;
+  min-height: 80px;
+  margin-top: var(--space-3);
+  transition: all 0.2s;
+}
+.record-tp-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-input-focus);
+}
+.record-tp-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Tips */
+.record-tips {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  margin-bottom: var(--space-6);
+}
+.record-tips-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.record-tips-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+.record-tip {
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  line-height: 1.4;
+}
+.record-tip-check {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .record { padding: var(--space-6) var(--space-4) 100px; }
+  .record-title { font-size: 26px; }
+  .record-tips-list { grid-template-columns: 1fr; }
+  .record-tp-card { flex-direction: column; text-align: center; }
+  .record-tp-card .btn-primary { width: 100%; }
+}
