@@ -2,12 +2,11 @@ import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { AuthContext } from '../context/AuthContext'
-import '../styles/script-generator.css'
 
 export default function ScriptGenerator() {
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
-
+  
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({
     q1: '', q2: '', q3: '', q4: '', q5: '', q6: '',
@@ -17,11 +16,9 @@ export default function ScriptGenerator() {
   const [savedScript, setSavedScript] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
   const [questions, setQuestions] = useState([])
   const [loadingQuestions, setLoadingQuestions] = useState(true)
 
-  // Fetch questions from Supabase
   useEffect(() => {
     const fetchQuestions = async () => {
       const { data, error } = await supabase
@@ -29,67 +26,42 @@ export default function ScriptGenerator() {
         .select('*')
         .eq('is_active', true)
         .order('order_num', { ascending: true })
-
-      if (error) {
-        console.error('Error fetching questions:', error)
-        return
-      }
-
-      // Format for use in component
+      if (error) { console.error('Error fetching questions:', error); return }
       const formattedQuestions = data.map(q => ({
         id: q.question_id,
         text: q.question_text,
         placeholder: q.example_text
       }))
-
       setQuestions(formattedQuestions)
       setLoadingQuestions(false)
     }
-
     fetchQuestions()
   }, [])
 
   const handleAnswerChange = (questionId, value) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: value
-    }))
+    setAnswers(prev => ({ ...prev, [questionId]: value }))
   }
 
   const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1)
-    }
+    if (currentQuestion < questions.length - 1) setCurrentQuestion(currentQuestion + 1)
   }
 
   const handleBack = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1)
-    }
+    if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1)
   }
 
   const handleGenerateScript = async () => {
     setLoading(true)
     setError('')
-
     try {
-      // Call the API to generate script
-      const response = await fetch('https://ai-presentation-coach.vercel.app/api/generate-script', {
+      const response = await fetch('/api/generate-script', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers })
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate script')
-      }
-
+      if (!response.ok) throw new Error('Failed to generate script')
       const data = await response.json()
       setScript(data.script)
-
-      // Save to Supabase
       const { data: dbData, error: dbError } = await supabase
         .from('scripts')
         .insert({
@@ -100,10 +72,8 @@ export default function ScriptGenerator() {
           status: 'draft'
         })
         .select()
-
       if (dbError) throw dbError
       if (dbData?.[0]) setSavedScript(dbData[0])
-
     } catch (err) {
       console.error('Error:', err)
       setError(err.message)
@@ -113,14 +83,13 @@ export default function ScriptGenerator() {
   }
 
   const currentQ = questions[currentQuestion]
-  const progress = ((currentQuestion + 1) / questions.length) * 100
+  const progress = questions.length ? ((currentQuestion + 1) / questions.length) * 100 : 0
 
   if (loadingQuestions) {
     return (
-      <div className="scriptgen">
-        <div className="scriptgen-content">
-          <div className="scriptgen-loading">
-            <div className="spinner"></div>
+      <div style={styles.container}>
+        <div style={styles.content}>
+          <div style={styles.loading}>
             <p>Loading questions...</p>
           </div>
         </div>
@@ -130,9 +99,9 @@ export default function ScriptGenerator() {
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="scriptgen">
-        <div className="scriptgen-content">
-          <div className="error-box">
+      <div style={styles.container}>
+        <div style={styles.content}>
+          <div style={styles.error}>
             <p>No questions found. Please create the questions table in Supabase.</p>
           </div>
         </div>
@@ -141,58 +110,49 @@ export default function ScriptGenerator() {
   }
 
   return (
-    <div className="scriptgen">
-      <div className="scriptgen-content">
-        {/* Header */}
-        <div className="scriptgen-header">
-          <h1 className="scriptgen-title">Create Your Pitch Script</h1>
-          <p className="scriptgen-subtitle">
+    <div style={styles.container}>
+      <div style={styles.content}>
+        <div style={styles.header}>
+          <h1 style={styles.title}>Create Your Pitch Script</h1>
+          <p style={styles.subtitle}>
             Answer these questions thoughtfully - they'll help us create an authentic pitch
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="scriptgen-progress-bar">
-          <div className="scriptgen-progress-fill" style={{ width: `${progress}%` }} />
+        <div style={styles.progressBar}>
+          <div style={{ ...styles.progressFill, width: `${progress}%` }} />
         </div>
-        <p className="scriptgen-progress-text">
+        <p style={styles.progressText}>
           Question {currentQuestion + 1} of {questions.length}
         </p>
 
-        {/* Question Card */}
         {!script && (
-          <div className="scriptgen-card">
-            <h2 className="scriptgen-question">{currentQ.text}</h2>
-
+          <div style={styles.card}>
+            <h2 style={styles.questionText}>{currentQ.text}</h2>
             <textarea
-              className="scriptgen-textarea"
               value={answers[currentQ.id]}
               onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
               placeholder={currentQ.placeholder}
+              style={styles.textarea}
               rows={6}
             />
-
-            {/* Navigation Buttons */}
-            <div className="scriptgen-buttons">
+            <div style={styles.buttonRow}>
               {currentQuestion > 0 && (
-                <button onClick={handleBack} className="btn-secondary">
-                  ← Back
-                </button>
+                <button onClick={handleBack} style={styles.buttonSecondary}>← Back</button>
               )}
-
               {currentQuestion < questions.length - 1 ? (
                 <button
                   onClick={handleNext}
-                  className="btn-primary"
-                  disabled={!answers[currentQ.id].trim()}
+                  style={styles.buttonPrimary}
+                  disabled={!answers[currentQ.id]?.trim()}
                 >
                   Next →
                 </button>
               ) : (
                 <button
                   onClick={handleGenerateScript}
-                  className="btn-primary"
-                  disabled={!answers[currentQ.id].trim() || loading}
+                  style={styles.buttonPrimary}
+                  disabled={!answers[currentQ.id]?.trim() || loading}
                 >
                   {loading ? 'Generating...' : '✨ Generate My Script'}
                 </button>
@@ -201,42 +161,34 @@ export default function ScriptGenerator() {
           </div>
         )}
 
-        {/* Loading State */}
         {loading && (
-          <div className="scriptgen-loading">
-            <div className="spinner" />
+          <div style={styles.loading}>
             <p>Crafting your authentic pitch...</p>
           </div>
         )}
 
-        {/* Error */}
         {error && (
-          <div className="error-box">
+          <div style={styles.error}>
             <p>{error}</p>
           </div>
         )}
 
-        {/* Generated Script */}
         {script && !loading && (
-          <div className="scriptgen-card">
-            <h2 className="scriptgen-success-title">Your Script Is Ready! 🎉</h2>
-            <div className="scriptgen-script-box">
-              <pre className="scriptgen-script-text">{script}</pre>
+          <div style={styles.card}>
+            <h2 style={styles.successTitle}>Your Script Is Ready! 🎉</h2>
+            <div style={styles.scriptBox}>
+              <pre style={styles.scriptText}>{script}</pre>
             </div>
-
-            <div className="scriptgen-buttons">
+            <div style={styles.buttonRow}>
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(script)
-                  alert('Script copied to clipboard!')
-                }}
-                className="btn-secondary"
+                onClick={() => navigator.clipboard.writeText(script)}
+                style={styles.buttonSecondary}
               >
                 📋 Copy Script
               </button>
               <button
                 onClick={() => navigate('/record', { state: { script: savedScript || { script_text: script } } })}
-                className="btn-primary"
+                style={styles.buttonPrimary}
               >
                 🎥 Record This Script
               </button>
@@ -246,4 +198,26 @@ export default function ScriptGenerator() {
       </div>
     </div>
   )
+}
+
+const styles = {
+  container: { minHeight: '100vh', backgroundColor: '#FAFAFA', padding: '40px 20px', fontFamily: "'DM Sans', -apple-system, sans-serif" },
+  content: { maxWidth: '700px', margin: '0 auto' },
+  header: { marginBottom: '32px', textAlign: 'center' },
+  title: { fontSize: '32px', fontWeight: '700', color: '#1a1a1a', marginBottom: '8px' },
+  subtitle: { fontSize: '16px', color: '#6b7280' },
+  progressBar: { width: '100%', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '100px', overflow: 'hidden', marginBottom: '8px' },
+  progressFill: { height: '100%', backgroundColor: '#FF9500', transition: 'width 0.3s ease' },
+  progressText: { fontSize: '14px', color: '#6b7280', marginBottom: '24px', textAlign: 'center' },
+  card: { backgroundColor: 'white', borderRadius: '20px', padding: '32px', border: '1px solid #f0f0f0' },
+  questionText: { fontSize: '20px', fontWeight: '600', color: '#1a1a1a', marginBottom: '20px', lineHeight: '1.4' },
+  textarea: { width: '100%', padding: '16px', fontSize: '16px', border: '2px solid #e5e7eb', borderRadius: '12px', fontFamily: 'inherit', resize: 'vertical', marginBottom: '24px', display: 'block', transition: 'border-color 0.2s', boxSizing: 'border-box' },
+  buttonRow: { display: 'flex', gap: '12px', justifyContent: 'flex-end' },
+  buttonPrimary: { padding: '14px 28px', fontSize: '16px', fontWeight: '600', color: 'white', background: 'linear-gradient(135deg, #FF9500, #FF6B00)', border: 'none', borderRadius: '12px', cursor: 'pointer' },
+  buttonSecondary: { padding: '14px 28px', fontSize: '16px', fontWeight: '600', color: '#6b7280', backgroundColor: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', cursor: 'pointer' },
+  loading: { textAlign: 'center', padding: '40px' },
+  error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '16px', borderRadius: '12px', marginTop: '16px' },
+  successTitle: { fontSize: '24px', fontWeight: '700', color: '#1a1a1a', marginBottom: '20px', textAlign: 'center' },
+  scriptBox: { backgroundColor: '#1a1a1a', color: '#e5e7eb', padding: '24px', borderRadius: '12px', marginBottom: '24px', maxHeight: '400px', overflowY: 'auto' },
+  scriptText: { fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 },
 }
