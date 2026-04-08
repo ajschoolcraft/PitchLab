@@ -215,7 +215,7 @@ const MultiTakeVideoRecorder = () => {
     }, 100);
   };
 
-  const downloadTake = (take) => {
+  const downloadTake = async (take) => {
     const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
 
