@@ -118,7 +118,7 @@ Tip: Speak slowly and naturally. Make eye contact with the camera, not the scree
 
       {/* Progress */}
       <div className="tp-progress">
-        <div className="tp-progress-bar" style={{ width: `${progress}%` }}></div>
+        <div className="tp-progress-bar" style={{ width: `${progress}%`, transition: 'none' }}></div>
       </div>
 
       {/* Script Area */}

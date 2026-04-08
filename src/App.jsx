@@ -9,7 +9,11 @@ import Dashboard from './pages/Dashboard'
 import Record from './pages/Record'
 import ScriptGenerator from './pages/ScriptGenerator'
 import Profile from './pages/Profile'
+import Share from './pages/Share'
 import NotFound from './pages/NotFound'
+import Recordings from './pages/Recordings'
+
+
 
 function App() {
   return (
@@ -37,6 +41,16 @@ function App() {
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/recordings" element={
+            <ProtectedRoute>
+              <Recordings />
+            </ProtectedRoute>
+          } />
+          <Route path="/share" element={
+            <ProtectedRoute>
+              <Share />
             </ProtectedRoute>
           } />
           <Route path="*" element={<NotFound />} />

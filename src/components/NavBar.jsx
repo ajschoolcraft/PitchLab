@@ -22,6 +22,7 @@ export default function NavBar() {
     { path: '/dashboard', label: 'Home', icon: '🏠' },
     { path: '/script-generator', label: 'Scripts', icon: '✍️' },
     { path: '/record', label: 'Record', icon: '🎥' },
+    { path: '/recordings', label: 'Recordings', icon: '🎬' },
     { path: '/profile', label: 'Profile', icon: '👤' },
   ]
 

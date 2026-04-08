@@ -216,26 +216,7 @@ export default function Dashboard() {
                       <div className="dash-recording-actions">
                         <button
                           className="dash-item-btn"
-                          onClick={async () => {
-                            try {
-                              const { data, error } = await supabase.storage
-                                .from('videos')
-                                .download(recording.storage_path);
-
-                              if (error) {
-                                console.error('Download error:', error);
-                                alert('Error loading video: ' + error.message);
-                                return;
-                              }
-
-                              const url = URL.createObjectURL(data);
-                              window.open(url, '_blank');
-
-                            } catch (err) {
-                              console.error('Error:', err);
-                              alert('Failed to load video');
-                            }
-                          }}
+                          onClick={() => navigate('/recordings', { state: { recordingId: recording.id } })}
                         >
                           View
                         </button>
@@ -323,7 +304,7 @@ export default function Dashboard() {
                 <span className="dash-quick-icon">📖</span>
                 <span className="dash-quick-label">Teleprompter</span>
               </button>
-              <button className="dash-quick-item" onClick={() => navigate('/record')}>
+              <button className="dash-quick-item" onClick={() => navigate('/share')}>
                 <span className="dash-quick-icon">📤</span>
                 <span className="dash-quick-label">Share</span>
               </button>
