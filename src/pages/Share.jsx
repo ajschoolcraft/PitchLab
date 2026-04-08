@@ -31,7 +31,7 @@ export default function Share() {
       id: 'instagram',
       name: 'Instagram',
       icon: '📷',
-      color: '#E4405F',
+      color: '#C13584',
       steps: [
         'Open the Instagram app on your phone',
         'Tap the "+" icon at the bottom center',
@@ -53,7 +53,7 @@ export default function Share() {
       id: 'tiktok',
       name: 'TikTok',
       icon: '🎵',
-      color: '#000000',
+      color: '#00f2ea',
       steps: [
         'Open the TikTok app on your phone',
         'Tap the "+" button at the bottom center',
