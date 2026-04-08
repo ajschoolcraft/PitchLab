@@ -215,42 +215,11 @@ const MultiTakeVideoRecorder = () => {
     }, 100);
   };
 
-  const generateThumbnail = (videoUrl) => {
-    return new Promise((resolve, reject) => {
-      const video = document.createElement('video');
-      video.crossOrigin = 'anonymous';
-      video.src = videoUrl;
-      video.muted = true;
-
-      video.onloadeddata = () => {
-        video.currentTime = 0.1;
-      };
-
-      video.onseeked = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 320;
-        canvas.height = 240;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(
-          (blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error('Canvas toBlob returned null'));
-          },
-          'image/jpeg',
-          0.7
-        );
-      };
-
-      video.onerror = () => reject(new Error('Video load failed'));
-    });
-  };
-
-  const downloadTake = async (take) => {
+  const downloadTake = (take) => {
     const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
 
-    // Keep existing download functionality
+
     const a = document.createElement('a');
     a.href = take.url;
     a.download = filename;
@@ -520,5 +489,7 @@ const MultiTakeVideoRecorder = () => {
     </div>
   );
 };
+
+
 
 export default MultiTakeVideoRecorder;
