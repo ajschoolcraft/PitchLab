@@ -1,0 +1,120 @@
+/* src/styles/help.css */
+
+.help {
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-6) 100px;
+}
+
+.help-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.help-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  margin-bottom: var(--space-6);
+  padding: 0;
+  transition: color 0.2s;
+}
+.help-back:hover {
+  color: var(--accent);
+}
+
+.help-header {
+  margin-bottom: var(--space-7);
+}
+
+.help-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-body);
+}
+
+.help-title {
+  font-size: 32px;
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.help-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.help-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-7);
+  border: 1px solid var(--border);
+  margin-bottom: var(--space-6);
+}
+
+.help-card-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.help-card-text {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.help-email {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--accent);
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-glow);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.help-email:hover {
+  background: var(--accent-glow-strong);
+  color: var(--accent-light);
+}
+
+.help-dashboard-btn {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.help-dashboard-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+@media (max-width: 767px) {
+  .help { padding: var(--space-6) var(--space-4) 100px; }
+  .help-title { font-size: 26px; }
+  .help-card { padding: var(--space-6) var(--space-5); }
+}

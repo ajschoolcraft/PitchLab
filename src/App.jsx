@@ -12,7 +12,7 @@ import Profile from './pages/Profile'
 import Share from './pages/Share'
 import NotFound from './pages/NotFound'
 import Recordings from './pages/Recordings'
-
+import Help from './pages/Help'
 
 
 function App() {
@@ -51,6 +51,11 @@ function App() {
           <Route path="/share" element={
             <ProtectedRoute>
               <Share />
+            </ProtectedRoute>
+          } />
+          <Route path="/help" element={
+            <ProtectedRoute>
+              <Help />
             </ProtectedRoute>
           } />
           <Route path="*" element={<NotFound />} />
