@@ -193,6 +193,34 @@ const MultiTakeVideoRecorder = () => {
     }, 1000);
   };
 
+  const generateThumbnail = (videoUrl) => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.crossOrigin = 'anonymous';
+      video.src = videoUrl;
+      video.muted = true;
+      video.onloadeddata = () => {
+        video.currentTime = 0.1;
+      };
+      video.onseeked = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 320;
+        canvas.height = 240;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Canvas toBlob returned null'));
+          },
+          'image/jpeg',
+          0.7
+        );
+      };
+      video.onerror = () => reject(new Error('Video load failed'));
+    });
+  };
+
   const stopRecording = () => {
     console.log('🛑 stopRecording called. Recorder state:', mediaRecorderRef.current?.state);
     if (mediaRecorderRef.current?.state === 'recording' || mediaRecorderRef.current?.state === 'paused') {
