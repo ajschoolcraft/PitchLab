@@ -221,6 +221,71 @@ const MultiTakeVideoRecorder = () => {
     });
   };
 
+  const saveTakeToSupabase = async (take) => {
+    if (!user) {
+      throw new Error('User not logged in');
+    }
+
+    // Convert blob URL to actual blob
+    const response = await fetch(take.url);
+    const blob = await response.blob();
+
+    // Generate unique video ID
+    const videoId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const storagePath = `${user.id}/${videoId}.webm`;
+
+    // Upload video
+    const { error: uploadError } = await supabase.storage
+      .from('videos')
+      .upload(storagePath, blob);
+
+    if (uploadError) {
+      throw new Error(`Video upload failed: ${uploadError.message}`);
+    }
+
+    // Generate + upload thumbnail (non-fatal — log and continue on failure)
+    let thumbnailUrl = null;
+    try {
+      const thumbBlob = await generateThumbnail(take.url);
+      const thumbPath = `${user.id}/${videoId}.jpg`;
+      const { error: thumbUploadError } = await supabase.storage
+        .from('thumbnails')
+        .upload(thumbPath, thumbBlob);
+
+      if (thumbUploadError) {
+        console.error('Thumbnail upload error:', thumbUploadError);
+      } else {
+        const { data: thumbUrlData } = supabase.storage
+          .from('thumbnails')
+          .getPublicUrl(thumbPath);
+        thumbnailUrl = thumbUrlData?.publicUrl || null;
+      }
+    } catch (thumbErr) {
+      console.error('Thumbnail generation error:', thumbErr);
+    }
+
+    // Insert DB row
+    const { data: dbData, error: dbError } = await supabase
+      .from('user_vids')
+      .insert({
+        user_id: user.id,
+        script_id: scriptData?.id || null,
+        storage_path: storagePath,
+        thumbnail_url: thumbnailUrl,
+        duration_secs: Math.round(take.duration || 0),
+        final_size_bytes: blob.size,
+        status: 'draft',
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      throw new Error(`Database insert failed: ${dbError.message}`);
+    }
+
+    return { dbId: dbData.id, thumbnailUrl, storagePath };
+  };
+
   const stopRecording = () => {
     console.log('🛑 stopRecording called. Recorder state:', mediaRecorderRef.current?.state);
     if (mediaRecorderRef.current?.state === 'recording' || mediaRecorderRef.current?.state === 'paused') {
@@ -243,10 +308,9 @@ const MultiTakeVideoRecorder = () => {
     }, 100);
   };
 
-  const downloadTake = async (take) => {
+  const downloadTake = (take) => {
     const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
     const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
-
 
     const a = document.createElement('a');
     a.href = take.url;
@@ -256,86 +320,6 @@ const MultiTakeVideoRecorder = () => {
     const newCounter = downloadCounter + 1;
     setDownloadCounter(newCounter);
     localStorage.setItem('presentationCoachCounter', newCounter.toString());
-
-    // Upload to Supabase
-    try {
-      if (!user) {
-        console.log('User not logged in - skipping Supabase upload');
-        return;
-      }
-
-      // Convert blob URL to actual blob
-      const response = await fetch(take.url);
-      const blob = await response.blob();
-
-      // Generate unique video ID
-      const videoId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      const storagePath = `${user.id}/${videoId}.webm`;
-
-      console.log('Uploading video to Supabase...');
-
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('videos')
-        .upload(storagePath, blob);
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        return;
-      }
-
-      console.log('Video uploaded successfully:', uploadData);
-
-      // Generate thumbnail from first frame
-      let thumbnailUrl = null;
-      try {
-        const thumbBlob = await generateThumbnail(take.url);
-        const thumbPath = `${user.id}/${videoId}.jpg`;
-        const { error: thumbUploadError } = await supabase.storage
-          .from('thumbnails')
-          .upload(thumbPath, thumbBlob);
-
-        if (thumbUploadError) {
-          console.error('Thumbnail upload error:', thumbUploadError);
-        } else {
-          const { data: thumbUrlData } = supabase.storage
-            .from('thumbnails')
-            .getPublicUrl(thumbPath);
-          thumbnailUrl = thumbUrlData?.publicUrl || null;
-          console.log('Thumbnail saved:', thumbnailUrl);
-        }
-      } catch (thumbErr) {
-        console.error('Thumbnail generation error:', thumbErr);
-      }
-
-      // Get video duration
-      const videoDuration = take.duration || 0;
-
-      // Save metadata to user_vids table
-      const { data: dbData, error: dbError } = await supabase
-        .from('user_vids')
-        .insert({
-          user_id: user.id,
-          script_id: scriptData?.id || null,
-          storage_path: storagePath,
-          thumbnail_url: thumbnailUrl,
-          duration_secs: Math.round(videoDuration),
-          final_size_bytes: blob.size,
-          status: 'draft'
-        })
-        .select();
-
-      if (dbError) {
-        console.error('Database error:', dbError);
-        return;
-      }
-
-      console.log('Video metadata saved to database:', dbData);
-      alert('Video saved to your account!');
-
-    } catch (error) {
-      console.error('Error uploading to Supabase:', error);
-    }
   };
 
   const recordAnother = () => {
