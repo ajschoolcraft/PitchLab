@@ -1,8 +1,9 @@
+/* src/styles/share.css */
+
 .share {
   min-height: 100vh;
-  background: #0f0f0f;
-  padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: var(--space-8) var(--space-6) 100px;
+  font-family: var(--font-body);
 }
 
 .share-inner {
@@ -11,47 +12,50 @@
 }
 
 .share-back {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #a0a0a0;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: 14px;
   font-weight: 500;
+  font-family: var(--font-body);
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-7);
 }
-
 .share-back:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .share-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: var(--space-8);
 }
 
 .share-label {
-  font-size: 0.875rem;
-  color: #d4a574;
+  font-size: 12px;
+  color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-body);
 }
 
 .share-title {
-  font-size: 2.5rem;
+  font-family: var(--font-display);
+  font-size: 40px;
   font-weight: 700;
-  color: #fff;
-  margin-bottom: 1rem;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
 }
 
 .share-subtitle {
-  font-size: 1.125rem;
-  color: #a0a0a0;
+  font-size: 17px;
+  color: var(--text-secondary);
   line-height: 1.6;
   max-width: 600px;
   margin: 0 auto;
@@ -60,189 +64,182 @@
 .platform-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
 }
 
 .platform-card {
-  background: #1a1a1a;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 2rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-7);
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
+  font-family: var(--font-body);
+  color: var(--text-primary);
 }
-
 .platform-card:hover {
-  border-color: var(--platform-color);
-  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--accent);
+  background: var(--bg-elevated);
   transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
 }
 
 .platform-icon {
-  font-size: 3rem;
+  font-size: 48px;
 }
 
 .platform-name {
-  font-size: 1.125rem;
+  font-size: 17px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
+  font-family: var(--font-body);
 }
 
 .instructions-container {
   animation: fadeIn 0.3s;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .back-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #a0a0a0;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: 14px;
   font-weight: 500;
+  font-family: var(--font-body);
   cursor: pointer;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-7);
   transition: all 0.2s;
 }
-
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .platform-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: var(--space-5);
+  margin-bottom: var(--space-7);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
 }
 
 .platform-icon-large {
-  font-size: 4rem;
+  font-size: 64px;
 }
 
 .platform-header h2 {
-  font-size: 1.875rem;
+  font-family: var(--font-display);
+  font-size: 30px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .instructions-section {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-5);
 }
 
 .section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #d4a574;
-  margin-bottom: 1rem;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: var(--space-4);
 }
 
 .steps-list,
 .tips-list {
   margin: 0;
-  padding-left: 1.5rem;
+  padding-left: var(--space-5);
 }
 
 .steps-list li,
 .tips-list li {
-  color: #d0d0d0;
+  color: var(--text-secondary);
   line-height: 1.8;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-3);
+  font-family: var(--font-body);
 }
 
 .tips-list li {
-  color: #a0a0a0;
+  color: var(--text-muted);
 }
 
 .reminder-box {
-  background: rgba(212, 165, 116, 0.1);
-  border: 1px solid rgba(212, 165, 116, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  background: var(--accent-glow);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-7);
 }
 
 .reminder-box strong {
-  color: #d4a574;
-  font-size: 1rem;
+  color: var(--accent);
+  font-size: 15px;
+  font-family: var(--font-body);
 }
 
 .reminder-box p {
-  color: #a0a0a0;
-  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  margin: var(--space-2) 0 0;
   line-height: 1.6;
+  font-family: var(--font-body);
 }
 
 .done-btn {
-  background: #d4a574;
-  color: #0f0f0f;
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+  color: var(--bg-primary);
   border: none;
-  border-radius: 8px;
-  padding: 1rem 2rem;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-7);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--font-body);
   cursor: pointer;
   width: 100%;
   transition: all 0.2s;
+  box-shadow: var(--shadow-button);
 }
-
 .done-btn:hover {
-  background: #e0b687;
   transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .share {
-    padding: 1rem;
+    padding: var(--space-6) var(--space-4) 100px;
   }
-
   .share-title {
-    font-size: 2rem;
+    font-size: 28px;
   }
-
   .platform-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-4);
   }
-
   .platform-card {
-    padding: 1.5rem;
+    padding: var(--space-5);
   }
-
   .platform-icon {
-    font-size: 2.5rem;
+    font-size: 36px;
   }
-
   .platform-header {
     flex-direction: column;
     text-align: center;
   }
-
   .platform-header h2 {
-    font-size: 1.5rem;
+    font-size: 22px;
   }
 }
