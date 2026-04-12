@@ -567,18 +567,66 @@ const MultiTakeVideoRecorder = () => {
             <span>{selectedTake.timestamp}</span>
           </div>
 
-          {takes.length > 1 && (
+          {takes.length > 0 && (
             <div className="recorder-takes-list">
               <h3>All Takes:</h3>
-              {takes.map((take, i) => (
-                <button
-                  key={take.id}
-                  onClick={() => selectTake(take)}
-                  className={`recorder-take-btn ${selectedTake.id === take.id ? 'recorder-take-btn-active' : ''}`}
-                >
-                  #{i + 1} ({take.duration}s)
-                </button>
-              ))}
+              {takes.map((take, i) => {
+                const isActive = selectedTake.id === take.id;
+                return (
+                  <div
+                    key={take.id}
+                    className={`recorder-take-row ${isActive ? 'recorder-take-row-active' : ''}`}
+                  >
+                    <button
+                      className="recorder-take-main"
+                      onClick={() => selectTake(take)}
+                    >
+                      <video
+                        className="recorder-take-thumb"
+                        src={take.url}
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+                      <div className="recorder-take-meta">
+                        <div className="recorder-take-title">
+                          Take #{i + 1} · {take.duration}s
+                        </div>
+                        {take.saveStatus === 'pending' && (
+                          <div className="recorder-take-status recorder-take-status-pending">
+                            ⟳ Saving…
+                          </div>
+                        )}
+                        {take.saveStatus === 'saved' && (
+                          <div className="recorder-take-status recorder-take-status-saved">
+                            ✓ Saved
+                          </div>
+                        )}
+                        {take.saveStatus === 'failed' && (
+                          <button
+                            type="button"
+                            className="recorder-take-status recorder-take-status-failed"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              retrySaveTake(take);
+                            }}
+                            title={take.saveError || 'Upload failed'}
+                          >
+                            ⚠ Failed — retry
+                          </button>
+                        )}
+                      </div>
+                    </button>
+                    <button
+                      className="recorder-take-delete"
+                      onClick={() => deleteTake(take)}
+                      aria-label={`Delete take ${i + 1}`}
+                    >
+                      🗑
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
 

@@ -268,3 +268,100 @@
   z-index: 10002;
   pointer-events: auto;
 }
+
+/* ---- Take review: rich rows with status + delete ---- */
+.recorder-take-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  transition: all 0.18s ease;
+}
+.recorder-take-row:hover {
+  border-color: var(--accent);
+}
+.recorder-take-row-active {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+}
+
+.recorder-take-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: transparent;
+  border: none;
+  padding: var(--space-2);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+}
+
+.recorder-take-thumb {
+  width: 72px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  flex-shrink: 0;
+}
+
+.recorder-take-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.recorder-take-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.recorder-take-status {
+  font-size: 12px;
+  font-family: var(--font-body);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: default;
+}
+.recorder-take-status-pending {
+  color: var(--accent);
+}
+.recorder-take-status-saved {
+  color: var(--success);
+}
+.recorder-take-status-failed {
+  color: var(--error);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.recorder-take-status-failed:hover {
+  color: var(--error);
+  opacity: 0.8;
+}
+
+.recorder-take-delete {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  align-self: center;
+}
+.recorder-take-delete:hover {
+  color: var(--error);
+  border-color: rgba(248, 113, 113, 0.25);
+  background: rgba(248, 113, 113, 0.08);
+}
