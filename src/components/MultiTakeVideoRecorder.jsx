@@ -411,11 +411,13 @@ const MultiTakeVideoRecorder = () => {
 
     // Remove from local state + revoke blob URL
     URL.revokeObjectURL(take.url);
-    const remaining = takes.filter(t => t.id !== take.id);
-    setTakes(remaining);
-    if (selectedTake?.id === take.id) {
-      setSelectedTake(remaining[remaining.length - 1] || null);
-    }
+    setTakes(prev => {
+      const remaining = prev.filter(t => t.id !== take.id);
+      return remaining;
+    });
+    setSelectedTake(prev =>
+      prev?.id === take.id ? null : prev
+    );
   };
 
   const recordAnother = () => {
