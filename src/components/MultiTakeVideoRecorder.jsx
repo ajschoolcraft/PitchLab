@@ -157,13 +157,37 @@ const MultiTakeVideoRecorder = () => {
           ? Math.round((Date.now() - recordingStartTimeRef.current) / 1000)
           : 0;
 
-        setTakes(prev => [...prev, {
-          id: Date.now(),
+        const takeId = Date.now();
+        const newTake = {
+          id: takeId,
           url,
           blob,
           timestamp: new Date().toLocaleString(),
-          duration
-        }]);
+          duration,
+          saveStatus: 'pending',
+          dbId: null,
+          saveError: null,
+        };
+
+        setTakes(prev => [...prev, newTake]);
+
+        // Fire-and-forget upload — UI stays responsive, next take can start immediately.
+        saveTakeToSupabase(newTake)
+          .then(({ dbId }) => {
+            setTakes(prev => prev.map(t =>
+              t.id === takeId
+                ? { ...t, saveStatus: 'saved', dbId, saveError: null }
+                : t
+            ));
+          })
+          .catch(err => {
+            console.error('Auto-save failed:', err);
+            setTakes(prev => prev.map(t =>
+              t.id === takeId
+                ? { ...t, saveStatus: 'failed', saveError: err.message }
+                : t
+            ));
+          });
 
         setShowTeleprompter(false);
         if (timerRef.current) clearInterval(timerRef.current);
@@ -320,6 +344,80 @@ const MultiTakeVideoRecorder = () => {
     const newCounter = downloadCounter + 1;
     setDownloadCounter(newCounter);
     localStorage.setItem('presentationCoachCounter', newCounter.toString());
+  };
+
+  const retrySaveTake = (take) => {
+    setTakes(prev => prev.map(t =>
+      t.id === take.id
+        ? { ...t, saveStatus: 'pending', saveError: null }
+        : t
+    ));
+    saveTakeToSupabase(take)
+      .then(({ dbId }) => {
+        setTakes(prev => prev.map(t =>
+          t.id === take.id
+            ? { ...t, saveStatus: 'saved', dbId, saveError: null }
+            : t
+        ));
+      })
+      .catch(err => {
+        console.error('Retry save failed:', err);
+        setTakes(prev => prev.map(t =>
+          t.id === take.id
+            ? { ...t, saveStatus: 'failed', saveError: err.message }
+            : t
+        ));
+      });
+  };
+
+  const deleteTake = async (take) => {
+    if (!window.confirm('Delete this take? This cannot be undone.')) return;
+
+    if (take.saveStatus === 'saved' && take.dbId) {
+      try {
+        // Look up the storage path from the DB row (stored at insert time)
+        const { data: row, error: fetchErr } = await supabase
+          .from('user_vids')
+          .select('storage_path, thumbnail_url')
+          .eq('id', take.dbId)
+          .single();
+
+        if (!fetchErr && row?.storage_path) {
+          await supabase.storage.from('videos').remove([row.storage_path]);
+        }
+        if (!fetchErr && row?.thumbnail_url) {
+          // thumbnail_url is a public URL — derive the path by taking the last two segments
+          const match = row.thumbnail_url.match(/thumbnails\/(.+)$/);
+          if (match && match[1]) {
+            await supabase.storage.from('thumbnails').remove([match[1]]);
+          }
+        }
+
+        const { error: delErr } = await supabase
+          .from('user_vids')
+          .delete()
+          .eq('id', take.dbId);
+        if (delErr) {
+          console.error('DB delete failed:', delErr);
+          alert('Could not delete from your account. Please try again.');
+          return;
+        }
+      } catch (err) {
+        console.error('Delete failed:', err);
+        alert('Could not delete from your account. Please try again.');
+        return;
+      }
+    }
+
+    // Remove from local state + revoke blob URL
+    URL.revokeObjectURL(take.url);
+    setTakes(prev => {
+      const next = prev.filter(t => t.id !== take.id);
+      if (selectedTake?.id === take.id) {
+        setSelectedTake(next[next.length - 1] || null);
+      }
+      return next;
+    });
   };
 
   const recordAnother = () => {
