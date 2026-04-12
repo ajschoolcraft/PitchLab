@@ -301,6 +301,11 @@
   text-align: left;
   font-family: var(--font-body);
   color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+.recorder-take-main:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .recorder-take-thumb {
@@ -364,4 +369,7 @@
   color: var(--error);
   border-color: rgba(248, 113, 113, 0.25);
   background: rgba(248, 113, 113, 0.08);
+}
+.recorder-take-delete:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
 }

@@ -575,9 +575,12 @@ const MultiTakeVideoRecorder = () => {
                     key={take.id}
                     className={`recorder-take-row ${isActive ? 'recorder-take-row-active' : ''}`}
                   >
-                    <button
+                    <div
                       className="recorder-take-main"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => selectTake(take)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTake(take); } }}
                     >
                       <video
                         className="recorder-take-thumb"
@@ -614,7 +617,7 @@ const MultiTakeVideoRecorder = () => {
                           </button>
                         )}
                       </div>
-                    </button>
+                    </div>
                     <button
                       className="recorder-take-delete"
                       onClick={() => deleteTake(take)}
