@@ -26,7 +26,7 @@ export default function Landing() {
         <p className="landing-hero-sub">
           AI-powered presentation coaching for entrepreneurs who are tired of
           fumbling their pitch. Write your script, practice on camera,
-          and get real coaceedback — in minutes.
+          and get reahing feedback in minutes.
         </p>
         <div className="landing-hero-actions">
           <button className="btn-primary" onClick={() => navigate('/auth')}>
@@ -37,7 +37,7 @@ export default function Landing() {
           }}>
             See How It Works
           </button>
-    </div>
+        </div>
         <p className="landing-hero-trust">
           Built for <span>entrepreneurs</span>, <span>founders</span>, and <span>business owners</span>
         </p>
@@ -51,7 +51,7 @@ export default function Landing() {
           </div>
           <div className="landing-stat-divider" />
           <div className="landing-stat">
-            <span className="landing-stat-num">3</span>
+            <span className="lanng-stat-num">3</span>
             <span className="landing-stat-label">Framework Phases</span>
           </div>
           <div className="landing-stat-divider" />
@@ -74,7 +74,7 @@ export default function Landing() {
             <h2>Authority Alignment™</h2>
             <p>
               The Authority Alignment™ framework helps entrepreneurs find and own
-              their authentic story — not a rehearsed pitch, but a real one that
+              their authentic y — not a rehearsed pitch, but a real one that
               connects with the right people.
             </p>
             <p>
@@ -82,7 +82,7 @@ export default function Landing() {
               <strong> Impact</strong>, and <strong>Declaration</strong> — so your
               presentation reflects who you actually are and why your work matters.
             </p>
-            <button className="btn" onClick={() => navigate('/auth')}>
+            <button className="btn-primary" onClick={() => navigate('/auth')}>
               Try It Free →
             </button>
           </div>
@@ -98,7 +98,7 @@ export default function Landing() {
               <div className="landing-phase-num">II</div>
               <div>
                 <h4>Impact</h4>
-                <p>The problem you solve and why it matters</p>
+                <p>Theem you solve and why it matters</p>
               </div>
             </div>
             <div className="landing-phase">
@@ -113,7 +113,7 @@ export default function Landing() {
       </section>
 
       <section className="landing-how">
-      <div className="landing-how-inner">
+        <div className="landing-how-inner">
           <p className="landing-section-label">Simple as 1-2-3</p>
           <h2 className="landing-section-title">How It Works</h2>
           <p className="landing-section-sub">
@@ -123,7 +123,7 @@ export default function Landing() {
             <div className="landing-step">
               <div className="landing-step-num">1</div>
               <h3>Answer the Questions</h3>
-              <p>Our AI guides you through 11 questions based on the Authority Alignment™ framework. No blank page paralysis — just answer naturally.</p>
+              <p>11 guided questions based on the Authority Alignment™ framework. No blank page paralysi— just answer naturally.</p>
             </div>
             <div className="landing-step">
               <div className="landing-step-num">2</div>
@@ -131,7 +131,7 @@ export default function Landing() {
               <p>Claude generates a clear, structured pitch script from your answers in seconds. Authentic to your voice, structured for impact.</p>
             </div>
             <div className="landing-step">
-             v className="landing-step-num">3</div>
+              <div className="landing-step-num">3</div>
               <h3>Record and Get Coached</h3>
               <p>Record as many takes as you need. After each one, get real AI coaching feedback on what landed, what to tighten, and one specific tip.</p>
             </div>
@@ -144,13 +144,13 @@ export default function Landing() {
           <p className="landing-section-label">Everything You Need</p>
           <h2 className="landing-section-title">Built For Real Entrepreneurs</h2>
           <p className="landing-section-sub">
-            No marketing jargon. No complicated tools. Just you, telling your story better.
+          No marketing jargon. No complicated tools. Just you, telling your story better.
           </p>
           <div className="landing-features-grid">
             <div className="landing-feature">
               <div className="landing-feature-icon">🤖</div>
               <h3>AI Script Generator</h3>
-              <p>Answer 11 guided questions and Claude builds your script — structured around the Authority nment™ framework so it actually connects.</p>
+              <p>Answer 11 guided questions and Claude builds your script — structured around the Authority Alignment™ framework so it actually connects.</p>
             </div>
             <div className="landing-feature">
               <div className="landing-feature-icon">🎯</div>
@@ -160,13 +160,14 @@ export default function Landing() {
             <div className="landing-feature">
               <div className="landing-feature-icon">🎥</div>
               <h3>Multi-Take Recording</h3>
-              <p>Record as many takes as you want with your teleprompter running. Review them, pick your best one. No pressure, no rush.</p>
+              <p>Record as many takes as you want with your te running. Review them, pick your best one. No pressure, no rush.</p>
             </div>
             <div className="landing-feature">
               <div className="landing-feature-icon">📤</div>
               <h3>Share Anywhere</h3>
               <p>Download your video and post it to Instagram, TikTok, YouTube, or LinkedIn. We walk you through exactly how to upload to each platform.</p>
-            </di     </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -181,7 +182,7 @@ export default function Landing() {
             <button className="btn-primary" onClick={() => navigate('/auth')}>
               Start For Free →
             </button>
-            <p className="landing-cta-sub">No credit card required</p>
+            <p className="landing-cta-sub">No credit card required
           </div>
         </div>
       </section>
