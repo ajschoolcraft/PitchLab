@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { AuthContext } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import Teleprompter from './Teleprompter';
+import CoachingFeedback from './CoachingFeedback';
 import '../styles/recorder.css';
 
 const MultiTakeVideoRecorder = () => {
@@ -566,6 +567,11 @@ const MultiTakeVideoRecorder = () => {
             <strong>Take #{takes.findIndex(t => t.id === selectedTake.id) + 1}</strong>
             <span>{selectedTake.timestamp}</span>
           </div>
+
+          <CoachingFeedback
+            take={{ ...selectedTake, takeNumber: takes.findIndex(t => t.id === selectedTake.id) + 1 }}
+            script={script}
+          />
 
           {takes.length > 0 && (
             <div className="recorder-takes-list">
