@@ -173,9 +173,9 @@ export default function Recordings() {
 
         {recordings.length === 0 ? (
           <div className="empty-state">
-            <span className="empty-icon">🎬</span>
-            <h2>No recordings yet</h2>
-            <p>Record your first presentation to see it here</p>
+            <span className="empty-icon">🎤</span>
+            <h2>Record your first take</h2>
+            <p>Practice makes perfect — record, review, and improve your delivery</p>
             <button className="btn-primary" onClick={() => navigate('/record')}>
               🎥 Start Recording
             </button>

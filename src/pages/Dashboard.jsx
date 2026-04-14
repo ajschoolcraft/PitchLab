@@ -101,10 +101,6 @@ export default function Dashboard() {
               <div className="stat-number">{recordings.length}</div>
               <div className="stat-label">Videos Recorded</div>
             </div>
-            <div className="stat-card">
-              <div className="stat-number">0</div>
-              <div className="stat-label">Videos Shared</div>
-            </div>
           </div>
 
           <div className="dash-action-card">
@@ -125,9 +121,12 @@ export default function Dashboard() {
               </div>
               {scripts.length === 0 ? (
                 <div className="empty-state">
-                  <span className="empty-state-icon">💡</span>
-                  <p className="empty-state-title">No scripts yet</p>
-                  <p className="empty-state-text">Create your first AI-powered script</p>
+                  <span className="empty-state-icon">✍️</span>
+                  <p className="empty-state-title">Write your first script</p>
+                  <p className="empty-state-text">Our AI helps you turn ideas into clear, structured presentations</p>
+                  <button className="btn-primary btn-sm" onClick={() => navigate('/script-generator')}>
+                    ✨ Create Script
+                  </button>
                 </div>
               ) : (
                 <div className="dash-item-list">
@@ -185,9 +184,12 @@ export default function Dashboard() {
               </div>
               {recordings.length === 0 ? (
                 <div className="empty-state">
-                  <span className="empty-state-icon">🎬</span>
-                  <p className="empty-state-title">No recordings yet</p>
-                  <p className="empty-state-text">Record your first presentation</p>
+                  <span className="empty-state-icon">🎤</span>
+                  <p className="empty-state-title">Record your first take</p>
+                  <p className="empty-state-text">Practice makes perfect — record, review, and improve your delivery</p>
+                  <button className="btn-secondary btn-sm" onClick={() => navigate('/record')}>
+                    🎥 Start Recording
+                  </button>
                 </div>
               ) : (
                 <div className="dash-item-list">
@@ -300,11 +302,7 @@ export default function Dashboard() {
                 <span className="dash-quick-icon">🎥</span>
                 <span className="dash-quick-label">Record</span>
               </button>
-              <button className="dash-quick-item" onClick={() => navigate('/record')}>
-                <span className="dash-quick-icon">📖</span>
-                <span className="dash-quick-label">Teleprompter</span>
-              </button>
-              <button className="dash-quick-item" onClick={() => navigate('/share')}>
+<button className="dash-quick-item" onClick={() => navigate('/share')}>
                 <span className="dash-quick-icon">📤</span>
                 <span className="dash-quick-label">Share</span>
               </button>

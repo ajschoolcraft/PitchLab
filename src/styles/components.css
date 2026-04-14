@@ -222,23 +222,29 @@
 }
 
 .empty-state-icon {
-  font-size: 40px;
+  font-size: 36px;
   display: block;
   margin-bottom: var(--space-3);
-  opacity: 0.5;
 }
 
 .empty-state-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-primary);
   margin-bottom: var(--space-1);
 }
 
 .empty-state-text {
   font-size: 13px;
   color: var(--text-muted);
-  opacity: 0.7;
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+}
+
+.btn-sm {
+  padding: 8px 18px;
+  font-size: 13px;
+  min-height: auto;
 }
 
 /* ---- Error Box ---- */

@@ -36,7 +36,7 @@
 /* Stats */
 .dash-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-4);
   margin-bottom: var(--space-7);
 }
@@ -222,7 +222,7 @@
 }
 .dash-quick-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-3);
 }
 .dash-quick-item {
@@ -254,7 +254,7 @@
 /* Mobile */
 @media (max-width: 767px) {
   .dash { padding: var(--space-6) var(--space-4) 100px; }
-  .dash-stats { grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+  .dash-stats { grid-template-columns: repeat(2, 1fr); gap: var(--space-2); }
   .dash-action-card {
     flex-direction: column;
     padding: var(--space-6);

@@ -2,11 +2,12 @@ import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { AuthContext } from '../context/AuthContext'
+import '../styles/script-generator.css'
 
 export default function ScriptGenerator() {
   const navigate = useNavigate()
   const { user } = useContext(AuthContext)
-  
+
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({
     q1: '', q2: '', q3: '', q4: '', q5: '', q6: '',
@@ -87,9 +88,9 @@ export default function ScriptGenerator() {
 
   if (loadingQuestions) {
     return (
-      <div style={styles.container}>
-        <div style={styles.content}>
-          <div style={styles.loading}>
+      <div className="scriptgen">
+        <div className="scriptgen-content">
+          <div className="scriptgen-loading">
             <p>Loading questions...</p>
           </div>
         </div>
@@ -99,9 +100,9 @@ export default function ScriptGenerator() {
 
   if (!questions || questions.length === 0) {
     return (
-      <div style={styles.container}>
-        <div style={styles.content}>
-          <div style={styles.error}>
+      <div className="scriptgen">
+        <div className="scriptgen-content">
+          <div className="error-box">
             <p>No questions found. Please create the questions table in Supabase.</p>
           </div>
         </div>
@@ -110,48 +111,48 @@ export default function ScriptGenerator() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.content}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>Create Your Pitch Script</h1>
-          <p style={styles.subtitle}>
+    <div className="scriptgen">
+      <div className="scriptgen-content">
+        <div className="scriptgen-header">
+          <h1 className="scriptgen-title">Create Your Pitch Script</h1>
+          <p className="scriptgen-subtitle">
             Answer these questions thoughtfully - they'll help us create an authentic pitch
           </p>
         </div>
 
-        <div style={styles.progressBar}>
-          <div style={{ ...styles.progressFill, width: `${progress}%` }} />
+        <div className="scriptgen-progress-bar">
+          <div className="scriptgen-progress-fill" style={{ width: `${progress}%` }} />
         </div>
-        <p style={styles.progressText}>
+        <p className="scriptgen-progress-text">
           Question {currentQuestion + 1} of {questions.length}
         </p>
 
         {!script && (
-          <div style={styles.card}>
-            <h2 style={styles.questionText}>{currentQ.text}</h2>
+          <div className="scriptgen-card">
+            <h2 className="scriptgen-question">{currentQ.text}</h2>
             <textarea
+              className="scriptgen-textarea"
               value={answers[currentQ.id]}
               onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
               placeholder={currentQ.placeholder}
-              style={styles.textarea}
               rows={6}
             />
-            <div style={styles.buttonRow}>
+            <div className="scriptgen-buttons">
               {currentQuestion > 0 && (
-                <button onClick={handleBack} style={styles.buttonSecondary}>← Back</button>
+                <button className="btn-secondary" onClick={handleBack}>← Back</button>
               )}
               {currentQuestion < questions.length - 1 ? (
                 <button
+                  className="btn-primary"
                   onClick={handleNext}
-                  style={styles.buttonPrimary}
                   disabled={!answers[currentQ.id]?.trim()}
                 >
                   Next →
                 </button>
               ) : (
                 <button
+                  className="btn-primary"
                   onClick={handleGenerateScript}
-                  style={styles.buttonPrimary}
                   disabled={!answers[currentQ.id]?.trim() || loading}
                 >
                   {loading ? 'Generating...' : '✨ Generate My Script'}
@@ -162,33 +163,33 @@ export default function ScriptGenerator() {
         )}
 
         {loading && (
-          <div style={styles.loading}>
+          <div className="scriptgen-loading">
             <p>Crafting your authentic pitch...</p>
           </div>
         )}
 
         {error && (
-          <div style={styles.error}>
+          <div className="error-box">
             <p>{error}</p>
           </div>
         )}
 
         {script && !loading && (
-          <div style={styles.card}>
-            <h2 style={styles.successTitle}>Your Script Is Ready! 🎉</h2>
-            <div style={styles.scriptBox}>
-              <pre style={styles.scriptText}>{script}</pre>
+          <div className="scriptgen-card">
+            <h2 className="scriptgen-success-title">Your Script Is Ready! 🎉</h2>
+            <div className="scriptgen-script-box">
+              <pre className="scriptgen-script-text">{script}</pre>
             </div>
-            <div style={styles.buttonRow}>
+            <div className="scriptgen-buttons">
               <button
+                className="btn-secondary"
                 onClick={() => navigator.clipboard.writeText(script)}
-                style={styles.buttonSecondary}
               >
                 📋 Copy Script
               </button>
               <button
+                className="btn-primary"
                 onClick={() => navigate('/record', { state: { script: savedScript || { script_text: script } } })}
-                style={styles.buttonPrimary}
               >
                 🎥 Record This Script
               </button>
@@ -198,26 +199,4 @@ export default function ScriptGenerator() {
       </div>
     </div>
   )
-}
-
-const styles = {
-  container: { minHeight: '100vh', backgroundColor: '#FAFAFA', padding: '40px 20px', fontFamily: "'DM Sans', -apple-system, sans-serif" },
-  content: { maxWidth: '700px', margin: '0 auto' },
-  header: { marginBottom: '32px', textAlign: 'center' },
-  title: { fontSize: '32px', fontWeight: '700', color: '#1a1a1a', marginBottom: '8px' },
-  subtitle: { fontSize: '16px', color: '#6b7280' },
-  progressBar: { width: '100%', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '100px', overflow: 'hidden', marginBottom: '8px' },
-  progressFill: { height: '100%', backgroundColor: '#FF9500', transition: 'width 0.3s ease' },
-  progressText: { fontSize: '14px', color: '#6b7280', marginBottom: '24px', textAlign: 'center' },
-  card: { backgroundColor: 'white', borderRadius: '20px', padding: '32px', border: '1px solid #f0f0f0' },
-  questionText: { fontSize: '20px', fontWeight: '600', color: '#1a1a1a', marginBottom: '20px', lineHeight: '1.4' },
-  textarea: { width: '100%', padding: '16px', fontSize: '16px', border: '2px solid #e5e7eb', borderRadius: '12px', fontFamily: 'inherit', resize: 'vertical', marginBottom: '24px', display: 'block', transition: 'border-color 0.2s', boxSizing: 'border-box' },
-  buttonRow: { display: 'flex', gap: '12px', justifyContent: 'flex-end' },
-  buttonPrimary: { padding: '14px 28px', fontSize: '16px', fontWeight: '600', color: 'white', background: 'linear-gradient(135deg, #FF9500, #FF6B00)', border: 'none', borderRadius: '12px', cursor: 'pointer' },
-  buttonSecondary: { padding: '14px 28px', fontSize: '16px', fontWeight: '600', color: '#6b7280', backgroundColor: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', cursor: 'pointer' },
-  loading: { textAlign: 'center', padding: '40px' },
-  error: { backgroundColor: '#fee2e2', color: '#dc2626', padding: '16px', borderRadius: '12px', marginTop: '16px' },
-  successTitle: { fontSize: '24px', fontWeight: '700', color: '#1a1a1a', marginBottom: '20px', textAlign: 'center' },
-  scriptBox: { backgroundColor: '#1a1a1a', color: '#e5e7eb', padding: '24px', borderRadius: '12px', marginBottom: '24px', maxHeight: '400px', overflowY: 'auto' },
-  scriptText: { fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 },
 }

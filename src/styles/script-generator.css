@@ -15,7 +15,10 @@
   text-align: center;
 }
 .scriptgen-title {
+  font-family: var(--font-display);
   font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
 }
 .scriptgen-subtitle {
@@ -103,7 +106,10 @@
 
 /* Success title */
 .scriptgen-success-title {
+  font-family: var(--font-display);
   font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: var(--space-5);
 }
