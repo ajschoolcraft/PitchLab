@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom"
-import "../styles/landing.css"
+import { useNavigate } from 'react-router-dom'
+import '../styles/landing.css'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -11,64 +11,60 @@ export default function Landing() {
           <div className="landing-nav-logo-icon">🎤</div>
           PresentationCoach
         </div>
-        <button className="btn-primary btn-sm" onClick={() => navigate("/auth")}>
+        <button className="btn-primary btn-sm" onClick={() => navigate('/auth')}>
           Get Started Free
         </button>
       </nav>
 
       <section className="landing-hero">
         <div className="landing-hero-badge">
-          ✨ Built on the Authority Alignment™ Framework
+          ✨ AI-Powered Presentation Coaching
         </div>
-        <h1>Stop Winging It.<br/><span>Start Owning It.</span></h1>
+        <h1>
+          Speak with<br/><span>Confidence.</span>
+        </h1>
         <p className="landing-hero-sub">
-          AI-powered presentation coaching for entrepreneurs who are tired of fumbling their pitch.
-          Write your script, practice on camera, and get real coaching feedback in min        </p>
+          Generate your script, practice on camera, and present like a pro.
+          Your personal AI coach that helps you communicate clearly.
+        </p>
         <div className="landing-hero-actions">
-          <button className="btn-primary" onClick={() => navigate("/auth")}>Start For Free →</button>
-          <button className="btn-secondary" onClick={() => { document.querySelector(".landing-how")?.scrollIntoView({ behavior: "smooth" }) }}>See How It Works</button>
+          <button className="btn-primary" onClick={() => navigate('/auth')}>
+            Start For Free →
+          </button>
+          <button className="btn-secondary" onClick={() => {
+            document.querySelector('.landing-how')?.scrollIntoView({ behavior: 'smooth' })
+          }}>
+            See How It Works
+          </button>
         </div>
-        <p className="landing-hero-trust">Built for <span>entrepreneurs</span>, <span>founders</span>, and <span>business owners</span></p>
-      </section>
-
-      <section className="landing-stats">
-        <div className="landing-stats-inner">
-          <div className=nding-stat"><span className="landing-stat-num">11</span><span className="landing-stat-label">Guided Questions</span></div>
-          <div className="landing-stat-divider" />
-          <div className="landing-stat"><span className="landing-stat-num">3</span><span className="landing-stat-label">Framework Phases</span></div>
-          <div className="landing-stat-divider" />
-          <div className="landing-stat"><span className="landing-stat-num">AI</span><span className="landing-stat-label">Coaching Feedback</span></div>
-          <div className="landing-stat-divider" />
-          <div className="landing-stat"><span className="landing-stat-num">Free</span><span className="landing-stat-label">To Get Started</span></div>
-        </div>
-      </section>
-
-      <section className="landing-framework">
-        <div className="landing-framework-inner">
-          <div className="landing-framework-text">
-            <p className="landing-section-label">The Framework Behind It</p>
-            <h2>Authority Alignment™</h2>
-            <p>The Authority Alignment™ framework helps entrepreneurs find and own their authentic story — not a rehearsed pitch, but a real one that connects with the right people.</p>
-            <p>Our AI guides you through three phases: <strong>Identity</strong>, <strong>Impact</strong>, and <strong>Declaration</strong> — so your presentation reflects who you actually are.</p>
-            <button className="btn-primary" onClick={() => navigate("/auth")}>Try It Free →</button>
-          </div>
-          <div className="landing-framework-phases">
-            <div className="landing-phase"><div className="landing-phase-num">I</div><div><h4>Identity</h4><p>Who you are and what drives you</p></div></div>
-            <div className="landing-phase"><div className="landing-phase-num">II</div><div><h4>Impact</h4><p>The problem you solve and why it matters</p></div></div>
-            <div className="landing-phase"><div className="landing-phase</div><div><h4>Declaration</h4><p>Your clear, confident call to action</p></div></div>
-          </div>
-        </div>
+        <p className="landing-hero-trust">
+          Built for <span>entrepreneurs</span>, <span>small business owners</span>, and <span>job seekers</span>
+        </p>
       </section>
 
       <section className="landing-how">
         <div className="landing-how-inner">
           <p className="landing-section-label">Simple as 1-2-3</p>
           <h2 className="landing-section-title">How It Works</h2>
-          <p className="landing-section-sub">No experience needed. We guide you through every step.</p>
+          <p className="landing-section-sub">
+            No experience needed. We guide you through every step.
+          </p>
           <div className="landing-steps">
-            <div className="landing-step"><div className="landing-step-num">1</div><h3>Answer the Questions</h3><p>11 guided questions based on the Authority Alignment™ framework. No blank page paralysis.</p></div>
-            <div className="landing-step"><div className="landing-step-num">2</div><h3>Get Your Script</h3><p>Claude generates a clear, structured pitch script from your answers. Authentic to your voice.</p></div>
-            <div className="landing-step"><div className="landing-st-num">3</div><h3>Record and Get Coached</h3><p>Record as many takes as you need. Get AI coaching feedback after each one.</p></div>
+            <div className="landing-step">
+              <div className="landing-step-num">1</div>
+              <h3>Tell Us Your Idea</h3>
+              <p>Just describe what you want to talk about. Who's your audience? How long should it be? That's all we need.</p>
+            </div>
+            <div className="landing-step">
+              <div className="landing-step-num">2</div>
+              <h3>Get Your Script</h3>
+              <p>Our AI writes a clear, structured script for you in seconds. Edit it, tweak it, make it yours.</p>
+            </div>
+            <div className="landing-step">
+              <div className="landing-step-num">3</div>
+              <h3>Record & Share</h3>
+              <p>Practice on camera with your script as a guide. Download your best take and share it anywhere.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -76,30 +72,67 @@ export default function Landing() {
       <section className="landing-features">
         <div className="landing-features-inner">
           <p className="landing-section-label">Everything You Need</p>
-          <h2 className="landing-section-title">Built For Real Entrepreneurs</h2>
-          <p className="landing-section-sub">No marketing jargon. No complicated tools. Just you, telling your story better.</p>
+          <h2 className="landing-section-title">Built For Real People</h2>
+          <p className="landing-section-sub">
+            No marketing jargon. No complicated tools. Just you, telling your story better.
+          </p>
           <div className="landing-features-grid">
-            <div className="landing-feature"><div className="landing-feature-icon">🤖</div><h3>AI Script Generator</h3><p>Answer 11 guided questions and Claude builds your script — structured around the Authority Alignment™ framework.</p></div>
-            <div className="landing-feature"><div className="landing-feature-icon">🎯</div><h3>Real Coaching Feedback</h3><p>After every recour AI gives you three insights: what landed, what to tighten, and one specific tip.</p></div>
-            <div className="landing-feature"><div className="landing-feature-icon">🎥</div><h3>Multi-Take Recording</h3><p>Record as many takes as you want with your teleprompter running. Pick your best one.</p></div>
-            <div className="landing-feature"><div className="landing-feature-icon">📤</div><h3>Share Anywhere</h3><p>Download your video and post it to Instagram, TikTok, YouTube, or LinkedIn.</p></div>
+            <div className="landing-feature">
+              <div className="landing-feature-icon">🤖</div>
+              <h3>AI Script Generator</h3>
+              <p>Tell us your topic and audience. Our AI creates a professional, structured script you can use right away — or customize to fit your voice.</p>
+            </div>
+            <div className="landing-feature">
+              <div className="landing-feature-icon">🎥</div>
+              <h3>Multi-Take Recording</h3>
+              <p>Record as many takes as you want. Review them side by side. Pick your best one. No pressure, no rush.</p>
+            </div>
+            <div className="landing-feature">
+              <div className="landing-feature-icon">📖</div>
+              <h3>Built-In Teleprompter</h3>
+              <p>Your script scrolls on screen while you record, so you never lose your place. Just look at the camera and speak naturally.</p>
+            </div>
+            <div className="landing-feature">
+              <div className="landing-feature-icon">📤</div>
+              <h3>Share Anywhere</h3>
+              <p>Download your video and post it to Instagram, TikTok, YouTube, or WhatsApp. We'll even tell you the best format for each platform.</p>
+            </div>
           </div>
+        </div>
+      </section>
+
+      <section className="landing-proof">
+        <div className="landing-proof-inner">
+          <p className="landing-section-label">Why It Matters</p>
+          <p className="landing-proof-quote">
+            "I used to spend hours trying to figure out what to say in my videos.
+            Now I just type my idea and start recording in minutes."
+          </p>
+          <p className="landing-proof-author">
+            <strong>Built by presenters, for presenters</strong> — LMU Capstone 2026
+          </p>
         </div>
       </section>
 
       <section className="landing-cta">
         <div className="landing-cta-bg">
           <div className="landing-cta-inner">
-            <h2>Your Story Is Worth Telling Right.</h2>
-            <p>Stop leaving your pitch to chance. Let AI help you find your words, practice on camera, and show up with confidence.</p>
-            <button className="btn-primary" onClick={() => navigate("/auth")}>Start For Free →</button>
-         className="landing-cta-sub">No credit card required</p>
+            <h2>Ready to Present Better?</h2>
+            <p>
+              Join entrepreneurs and business owners who are telling their stories
+              with clarity and confidence.
+            </p>
+            <button className="btn-primary" onClick={() => navigate('/auth')}>
+              Get Started — It's Free
+            </button>
           </div>
         </div>
       </section>
 
       <footer className="landing-footer">
-        <p>© 2026 PresentationCoach · Built with care at <a href="https://www.lmu.edu" target="_blank" rel="noreferrer">Loyola Marymount University</a></p>
+        <p>
+          © 2026 PresentationCoach · Built with care at <a href="https://www.lmu.edu" target="_blank" rel="noreferrer">Loyola Marymount University</a>
+        </p>
       </footer>
     </div>
   )
