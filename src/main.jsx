@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Application entry point.
+ * Mounts the React root with BrowserRouter for client-side routing
+ * and imports the global theme and component styles.
+ */
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

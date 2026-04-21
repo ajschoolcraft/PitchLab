@@ -1,3 +1,10 @@
+/**
+ * @fileoverview User profile and account settings page.
+ * Displays the user's avatar, email, and membership date alongside stats
+ * (scripts created, recordings made). Allows editing display name and bio
+ * (persisted to Supabase Auth user_metadata) and provides a sign-out action.
+ */
+
 import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'

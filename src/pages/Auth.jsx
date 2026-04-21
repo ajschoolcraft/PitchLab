@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Authentication page (sign up / sign in).
+ * Supports email/password registration and login as well as Google OAuth.
+ * Includes client-side validation (password length, confirmation match)
+ * and redirects authenticated users to the dashboard.
+ */
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'

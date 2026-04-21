@@ -1,3 +1,9 @@
+/**
+ * @fileoverview 404 Not Found page.
+ * Catches all unmatched routes and displays a friendly error message
+ * with a link back to the home page.
+ */
+
 import { useNavigate } from 'react-router-dom'
 import '../styles/not-found.css'
 

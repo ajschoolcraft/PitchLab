@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Toast notification system.
+ * Provides a ToastProvider context and useToast() hook for triggering
+ * dismissible notifications (success, error, info) from anywhere in the app.
+ * Toasts auto-dismiss after a configurable duration with a slide-out animation.
+ */
+
 import { useState, useEffect, createContext, useContext, useCallback } from 'react'
 import '../styles/toast.css'
 

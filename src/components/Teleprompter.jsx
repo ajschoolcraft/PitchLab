@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Full-screen teleprompter overlay.
+ * Displays the user's script in a scrollable view with adjustable speed, font size,
+ * and optional mirror mode. Supports both on-screen controls and keyboard shortcuts
+ * (Space = play/pause, Arrow keys = speed, R = reset, Esc = exit).
+ * Uses requestAnimationFrame for smooth, frame-rate-independent scrolling.
+ */
+
 import { useState, useRef, useEffect, useCallback } from 'react'
 import '../styles/teleprompter.css'
 

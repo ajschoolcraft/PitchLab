@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Vercel serverless function — AI script generation endpoint.
+ * Receives the user's questionnaire answers via POST, constructs a structured
+ * prompt, and calls the Anthropic Claude API to generate a 30-second pitch script.
+ * Returns the generated script text along with model info and token usage.
+ *
+ * @route POST /api/generate-script
+ * @access Public (called from authenticated frontend)
+ * @env ANTHROPIC_API_KEY — required, set in Vercel project settings
+ */
+
 import Anthropic from '@anthropic-ai/sdk'
 
 export default async function handler(req, res) {

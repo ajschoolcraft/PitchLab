@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Main dashboard / home screen.
+ * Displays a personalized greeting, script and recording stats, a CTA card,
+ * lists of recent scripts and recordings with inline actions (use, delete,
+ * mark as final), and a quick-action grid for common tasks.
+ * Triggers the onboarding flow on the user's first visit.
+ */
+
 import { useNavigate } from 'react-router-dom'
 import { useState, useContext, useEffect } from 'react'
 import { AuthContext } from '../context/AuthContext'
@@ -302,7 +310,11 @@ export default function Dashboard() {
                 <span className="dash-quick-icon">🎥</span>
                 <span className="dash-quick-label">Record</span>
               </button>
-<button className="dash-quick-item" onClick={() => navigate('/share')}>
+              <button className="dash-quick-item" onClick={() => navigate('/recordings')}>
+                <span className="dash-quick-icon">🎬</span>
+                <span className="dash-quick-label">My Videos</span>
+              </button>
+              <button className="dash-quick-item" onClick={() => navigate('/share')}>
                 <span className="dash-quick-icon">📤</span>
                 <span className="dash-quick-label">Share</span>
               </button>

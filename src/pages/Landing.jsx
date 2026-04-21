@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Public marketing landing page.
+ * Showcases the app's value proposition with a hero section, 3-step workflow
+ * explanation, feature grid, social proof quote, and a call-to-action.
+ * This is the only page visible to unauthenticated visitors.
+ */
+
 import { useNavigate } from 'react-router-dom'
 import '../styles/landing.css'
 

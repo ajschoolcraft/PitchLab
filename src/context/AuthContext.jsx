@@ -1,10 +1,16 @@
+/**
+ * @fileoverview Authentication context provider.
+ * Manages global auth state (current user, loading status) via Supabase Auth.
+ * Exposes signUp, signIn, and logout helpers to all descendant components.
+ * Listens for auth state changes (login, logout, OAuth redirects) and keeps
+ * the user object in sync automatically.
+ */
+
 import { createContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-// Create the context
 export const AuthContext = createContext()
 
-// Create the provider component
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)

@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Supabase client singleton.
+ * Initializes and exports the Supabase client used for authentication,
+ * database queries, and file storage throughout the application.
+ * Configuration is read from environment variables with development fallbacks.
+ */
+
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://meurhqiyqsyfydvgxddj.supabase.co'

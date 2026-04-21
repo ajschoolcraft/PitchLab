@@ -1,3 +1,10 @@
+/**
+ * @fileoverview First-time user onboarding flow.
+ * Displays a 3-step walkthrough introducing the app's core features.
+ * Progress is persisted to localStorage so the flow only appears once.
+ * Users can skip at any point or navigate back through previous steps.
+ */
+
 import { useState } from 'react'
 import '../styles/onboarding.css'
 

@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Multi-take video recorder component.
+ * Handles camera/microphone access, MediaRecorder-based video capture with a
+ * 60-second timer, thumbnail generation, and automatic upload to Supabase Storage.
+ * Supports multiple takes per session — users can review, delete, re-record, and
+ * download individual takes. Integrates with the Teleprompter overlay when a
+ * script is provided.
+ */
+
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { supabase } from '../lib/supabase';
 import { AuthContext } from '../context/AuthContext';

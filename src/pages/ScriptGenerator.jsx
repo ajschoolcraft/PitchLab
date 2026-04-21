@@ -1,3 +1,11 @@
+/**
+ * @fileoverview AI-powered script generator page.
+ * Walks the user through a guided questionnaire (questions fetched from Supabase),
+ * then sends all answers to the /api/generate-script serverless function which
+ * calls the Claude API. The generated script is saved to the database and can be
+ * copied or sent directly to the recording page with one click.
+ */
+
 import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'

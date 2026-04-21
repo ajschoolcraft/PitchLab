@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Video library page.
+ * Fetches and displays all of the user's saved recordings in a responsive grid.
+ * Supports playback, downloading, marking recordings as "final", and deletion
+ * (from both Supabase Storage and the database). Can deep-link to a specific
+ * recording via location state from the Dashboard.
+ */
+
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';

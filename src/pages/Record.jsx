@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Video recording page.
+ * Provides the recording interface with an optional teleprompter, a tips section,
+ * and the MultiTakeVideoRecorder component. Accepts an optional script via
+ * React Router's location state (passed from ScriptGenerator or Dashboard).
+ */
+
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import MultiTakeVideoRecorder from '../components/MultiTakeVideoRecorder'

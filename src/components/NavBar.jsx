@@ -1,9 +1,15 @@
+/**
+ * @fileoverview Responsive navigation system.
+ * Renders a mobile bottom tab bar (with a slide-out drawer for secondary links)
+ * on viewports under 768px, and a traditional top navigation bar on desktop.
+ * Handles focus management, scroll locking, and keyboard accessibility for the
+ * mobile drawer.
+ */
+
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import '../styles/navbar.css'
-
-// Mobile bottom tab bar — 4 slots + "More" that opens the drawer.
 function BottomTabs({ isActive, onOpenDrawer, drawerOpen, navigate, triggerRef }) {
   const tabs = [
     { path: '/dashboard', label: 'Home', icon: '🏠' },
@@ -137,7 +143,9 @@ function DesktopTopBar({ user, isActive, navigate, onLogout }) {
     { path: '/script-generator', label: 'Scripts', icon: '✍️' },
     { path: '/record', label: 'Record', icon: '🎥' },
     { path: '/recordings', label: 'Recordings', icon: '🎬' },
+    { path: '/share', label: 'Share', icon: '📤' },
     { path: '/profile', label: 'Profile', icon: '👤' },
+    { path: '/help', label: 'Help', icon: '❓' },
   ]
 
   return (

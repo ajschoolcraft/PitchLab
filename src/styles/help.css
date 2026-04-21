@@ -113,6 +113,61 @@
   background: var(--accent-glow);
 }
 
+/* Lists */
+.help-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  list-style: none;
+}
+.help-list li {
+  position: relative;
+  padding-left: var(--space-4);
+  margin-bottom: var(--space-3);
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.help-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+.help-list li strong {
+  color: var(--text-primary);
+}
+.help-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* FAQs */
+.help-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.help-faq {
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.help-faq:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.help-faq-q {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+.help-faq-a {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
 @media (max-width: 767px) {
   .help { padding: var(--space-6) var(--space-4) 100px; }
   .help-title { font-size: 26px; }

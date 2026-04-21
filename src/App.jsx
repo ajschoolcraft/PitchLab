@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Root application component.
+ * Defines all routes and wraps the app in AuthProvider and ToastProvider.
+ * Protected routes require authentication via the ProtectedRoute wrapper.
+ */
+
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './components/Toast'
