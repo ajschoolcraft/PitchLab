@@ -252,7 +252,7 @@
 }
 .recorder-stop-floating {
   position: fixed;
-  bottom: 40px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
   background: #dc3545;
