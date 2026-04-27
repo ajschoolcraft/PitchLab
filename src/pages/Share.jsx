@@ -27,7 +27,7 @@ export default function Share() {
   return (
     <div className="share">
       <div className="share-inner">
-        <button className="share-back" on) => navigate('/dashboard')}>Back to Dashboard</button>
+        <button className="share-back" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
         <div className="share-header">
           <p className="share-label">Export and Share</p>
           <h1 className="share-title">Share Your Video</h1>
@@ -46,7 +46,7 @@ export default function Share() {
           </div>
         )}
         {shareStatus && <p className="share-status">{shareStatus}</p>}
-        <div className="share-divider"><span>or follow platform guides below</span></v>
+        <div className="share-divider"><span>or follow platform guides below</span></div>
         {!selectedPlatform ? (
           <div className="platform-grid">
             {platforms.map((p) => (
