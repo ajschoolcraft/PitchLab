@@ -37,9 +37,9 @@ export default function Record() {
     <>
       <style>{`
         .record-checklist {
-          background: white;
+          background: #1a1a1a;
           border-radius: 20px;
-          border: 1px solid #f0f0f0;
+          border: 1px solid rgba(255, 255, 255, 0.1);
           padding: 24px;
           margin-bottom: 24px;
         }
@@ -52,7 +52,7 @@ export default function Record() {
         .record-checklist-title {
           font-size: 16px;
           font-weight: 700;
-          color: #1a1a1a;
+          color: #fff;
           margin: 0;
         }
         .record-checklist-badge {
@@ -60,13 +60,13 @@ export default function Record() {
           font-weight: 600;
           padding: 4px 12px;
           border-radius: 20px;
-          background: ${allChecked ? '#dcfce7' : '#f5f5f5'};
-          color: ${allChecked ? '#16a34a' : '#6b7280'};
+          background: ${allChecked ? 'rgba(212, 165, 116, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+          color: ${allChecked ? '#d4a574' : '#a0a0a0'};
           transition: all 0.3s ease;
         }
         .record-progress-bar {
           height: 4px;
-          background: #f0f0f0;
+          background: rgba(255, 255, 255, 0.1);
           border-radius: 4px;
           margin-bottom: 16px;
           overflow: hidden;
@@ -74,7 +74,7 @@ export default function Record() {
         .record-progress-fill {
           height: 100%;
           border-radius: 4px;
-          background: linear-gradient(135deg, #FF9500, #FF6B00);
+          background: linear-gradient(135deg, #d4a574, #c89563);
           transition: width 0.4s ease;
           width: ${readyPercent}%;
         }
@@ -89,18 +89,21 @@ export default function Record() {
           gap: 10px;
           padding: 12px 14px;
           border-radius: 12px;
-          border: 1.5px solid ${'{checked ? "#bbf7d0" : "#f0f0f0"}'};
+          border: 1.5px solid ${'{checked ? "rgba(212, 165, 116, 0.3)" : "rgba(255, 255, 255, 0.1)"}'};
           cursor: pointer;
           transition: all 0.2s ease;
-          background: ${'{checked ? "#f0fdf4" : "white"}'};
+          background: ${'{checked ? "rgba(212, 165, 116, 0.1)" : "rgba(255, 255, 255, 0.03)"}'};
           user-select: none;
         }
-        .record-checklist-item:hover { border-color: #FF9500; }
+        .record-checklist-item:hover { 
+          border-color: rgba(212, 165, 116, 0.5);
+          background: rgba(212, 165, 116, 0.05);
+        }
         .record-check-box {
           width: 20px;
           height: 20px;
           border-radius: 6px;
-          border: 2px solid #e5e7eb;
+          border: 2px solid rgba(255, 255, 255, 0.2);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -109,23 +112,23 @@ export default function Record() {
           font-size: 12px;
         }
         .record-check-box.checked {
-          background: #16a34a;
-          border-color: #16a34a;
+          background: #d4a574;
+          border-color: #d4a574;
         }
         .record-check-icon { font-size: 16px; }
         .record-check-text {
           font-size: 13px;
           font-weight: 500;
-          color: #374151;
+          color: #d0d0d0;
           line-height: 1.3;
         }
         .record-ready-banner {
           margin-top: 14px;
           padding: 12px 16px;
-          background: linear-gradient(135deg, #FF9500, #FF6B00);
+          background: linear-gradient(135deg, #d4a574, #c89563);
           border-radius: 12px;
           text-align: center;
-          color: white;
+          color: #0f0f0f;
           font-size: 14px;
           font-weight: 600;
           animation: cf-slide-up 0.4s ease;
@@ -175,8 +178,8 @@ export default function Record() {
                   key={item.id}
                   className="record-checklist-item"
                   style={{
-                    borderColor: checked[item.id] ? '#bbf7d0' : '#f0f0f0',
-                    background: checked[item.id] ? '#f0fdf4' : 'white',
+                    borderColor: checked[item.id] ? 'rgba(212, 165, 116, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+                    background: checked[item.id] ? 'rgba(212, 165, 116, 0.1)' : 'rgba(255, 255, 255, 0.03)',
                   }}
                   onClick={() => toggle(item.id)}
                 >
