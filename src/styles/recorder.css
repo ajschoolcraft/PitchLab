@@ -440,7 +440,7 @@
 /* Add this to your recorder.css file */
 
 /* Mobile teleprompter view - make camera preview small */
-@media (max-width: 767px), (max-height: 1000px) {
+@media (max-width: 767px) {
   .recorder-video-corner {
     position: fixed;
     top: 80px; /* Below the teleprompter top bar */
@@ -507,17 +507,17 @@
 
   .recorder-stop-floating {
     position: fixed;
-    bottom: 100px;
+    bottom: 140px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1002;
-    padding: 12px 24px;
-    font-size: 15px;
-    font-weight: 700;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
     background: #dc2626;
     color: #fff;
     border: none;
-    border-radius: 100px;
+    border-radius: 8px;
     box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
   }
 
