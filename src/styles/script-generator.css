@@ -168,3 +168,16 @@
   color: #d1d5db;
   font-size: 13px;
 }
+
+/* Typing cursor */
+.scriptgen-cursor {
+  display: inline-block;
+  width: 2px;
+  color: #FF9500;
+  animation: blink 0.7s step-end infinite;
+  font-weight: 300;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
