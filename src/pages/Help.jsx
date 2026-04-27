@@ -43,7 +43,7 @@ export default function Help() {
           <p className="help-label">Support</p>
           <h1 className="help-title">Help & Tips</h1>
           <p className="help-subtitle">
-            Everything you need to get the most out of PresentationCoach.
+            Everything you need to get the most out of PitchLab.
           </p>
         </div>
 

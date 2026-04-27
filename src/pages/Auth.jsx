@@ -90,8 +90,8 @@ export default function Auth() {
     <div className="auth">
       <div className="auth-wrapper">
         <div className="auth-logo">
-          <div className="auth-logo-icon">🎤</div>
-          <div className="auth-logo-text">PresentationCoach</div>
+          <img src="/pitchlab-icon.png" alt="PitchLab" className="auth-logo-icon" />
+          <div className="auth-logo-text">PitchLab</div>
         </div>
 
         <div className="auth-card">

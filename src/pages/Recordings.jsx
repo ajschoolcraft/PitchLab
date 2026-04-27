@@ -94,7 +94,7 @@ export default function Recordings() {
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `PresentationCoach_Recording_${recording.id}.webm`;
+      a.download = `PitchLab_Recording_${recording.id}.webm`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -212,7 +212,7 @@ export default function Recordings() {
 
         {recordings.length === 0 ? (
           <div className="empty-state">
-            <span className="empty-icon">🎤</span>
+            <img src="/pitchlab-icon.png" alt="PitchLab" className="empty-icon" style={{ width: 48, height: 48, objectFit: 'contain' }} />
             <h2>Record your first take</h2>
             <p>Practice makes perfect — record, review, and improve your delivery</p>
             <button className="btn-primary" onClick={() => navigate('/record')}>

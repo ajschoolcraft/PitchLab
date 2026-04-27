@@ -15,8 +15,8 @@ export default function Landing() {
     <div className="landing">
       <nav className="landing-nav">
         <div className="landing-nav-logo">
-          <div className="landing-nav-logo-icon">🎤</div>
-          PresentationCoach
+          <img src="/pitchlab-icon.png" alt="PitchLab" className="landing-nav-logo-icon" />
+          PitchLab
         </div>
         <button className="btn-primary btn-sm" onClick={() => navigate('/auth')}>
           Get Started Free
@@ -196,7 +196,7 @@ export default function Landing() {
 
       <footer className="landing-footer">
         <p>
-          © 2026 PresentationCoach · Built with care at{' '}
+          © 2026 PitchLab · Built with care at{' '}
           <a href="https://www.lmu.edu" target="_blank" rel="noreferrer">
             Loyola Marymount University
           </a>

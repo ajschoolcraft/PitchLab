@@ -226,7 +226,7 @@ export default function Dashboard() {
               </div>
               {recordings.length === 0 ? (
                 <div className="empty-state">
-                  <span className="empty-state-icon">🎤</span>
+                  <img src="/pitchlab-icon.png" alt="PitchLab" className="empty-state-icon" style={{ width: 48, height: 48, objectFit: 'contain' }} />
                   <p className="empty-state-title">Record your first take</p>
                   <p className="empty-state-text">Practice makes perfect — record, review, and improve your delivery</p>
                   <button className="btn-secondary btn-sm" onClick={() => navigate('/record')}>

@@ -152,8 +152,8 @@ function DesktopTopBar({ user, isActive, navigate, onLogout }) {
     <div className="nav-desktop">
       <div className="nav-desktop-inner">
         <div className="nav-logo" onClick={() => navigate('/dashboard')}>
-          <div className="nav-logo-icon">🎤</div>
-          PresentationCoach
+          <img src="/pitchlab-icon.png" alt="PitchLab" className="nav-logo-icon" />
+          PitchLab
         </div>
 
         <div className="nav-links">

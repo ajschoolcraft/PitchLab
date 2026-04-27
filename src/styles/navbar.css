@@ -224,7 +224,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 0;
     transition: opacity 0.2s;
   }
   .nav-logo:hover {
@@ -232,14 +232,13 @@
   }
 
   .nav-logo-icon {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, var(--accent-hover), var(--accent));
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin: -20px -35px -20px -40px;
+    position: relative;
+    left: -20px;
+    top: 4px;
   }
 
   .nav-links {

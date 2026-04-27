@@ -345,7 +345,7 @@ const MultiTakeVideoRecorder = ({ script: scriptProp, manualScript }) => {
 
   const downloadTake = (take) => {
     const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
-    const filename = `PresentationCoach_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
+    const filename = `PitchLab_${userName}_${String(downloadCounter).padStart(3, '0')}.webm`;
 
     const a = document.createElement('a');
     a.href = take.url;
@@ -711,7 +711,7 @@ const MultiTakeVideoRecorder = ({ script: scriptProp, manualScript }) => {
           )}
 
           <p className="recorder-hint">
-            Next: PresentationCoach_{user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}_{String(downloadCounter).padStart(3, '0')}.webm
+            Next: PitchLab_{user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}_{String(downloadCounter).padStart(3, '0')}.webm
           </p>
         </div>
       )}

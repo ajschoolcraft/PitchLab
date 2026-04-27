@@ -13,8 +13,8 @@ export default function Onboarding({ onComplete }) {
 
   const steps = [
     {
-      icon: '🎤',
-      title: 'Welcome to PresentationCoach',
+      icon: '/pitchlab-icon.png',
+      title: 'Welcome to PitchLab',
       subtitle: 'Your personal AI-powered tool for telling your story with clarity and confidence.',
       detail: 'We help entrepreneurs and business owners craft their message and present it professionally.',
     },
@@ -57,7 +57,11 @@ export default function Onboarding({ onComplete }) {
         </button>
 
         <div className="ob-icon-wrap">
-          {current.icon}
+          {current.icon.endsWith('.png') ? (
+            <img src={current.icon} alt="" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+          ) : (
+            current.icon
+          )}
         </div>
 
         <h2 className="ob-title">{current.title}</h2>
