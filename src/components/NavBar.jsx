@@ -188,8 +188,12 @@ function DesktopTopBar({ user, isActive, navigate, onLogout }) {
 export default function NavBar() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout, loading } = useContext(AuthContext)
+  const auth = useContext(AuthContext)
   const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const user = auth?.user ?? null
+  const logout = auth?.logout ?? (() => {})
+  const loading = auth?.loading ?? true
 
   // Refs for focus management.
   const triggerRef = useRef(null)

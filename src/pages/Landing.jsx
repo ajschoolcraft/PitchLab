@@ -16,7 +16,7 @@ export default function Landing() {
       <nav className="landing-nav">
         <div className="landing-nav-logo">
           <img src="/pitchlab-icon.png" alt="PitchLab" className="landing-nav-logo-icon" />
-          PitchLab
+          <span className="landing-nav-logo-text">PitchLab</span>
         </div>
         <button className="btn-primary btn-sm" onClick={() => navigate('/auth')}>
           Get Started Free

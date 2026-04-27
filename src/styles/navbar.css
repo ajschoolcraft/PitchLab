@@ -103,16 +103,22 @@
   cursor: pointer;
 }
 .drawer-brand-icon {
-  width: 80px;
-  height: 80px;
+  width: 115px;
+  height: 115px;
   object-fit: contain;
   margin: -16px 0;
+  position: relative;
+  top: 2px;
+  left: -18px;
 }
 .drawer-brand-name {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--text-primary);
+  position: relative;
+  left: -51px;
+  top: -1px;
 }
 
 .drawer-header {
