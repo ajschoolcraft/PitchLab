@@ -413,7 +413,7 @@
   margin-top: var(--space-6);
   padding: var(--space-5);
   background: var(--bg-elevated);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   animation: fadeIn 0.3s;
 }
@@ -421,7 +421,7 @@
 .share-url-label {
   font-size: 13px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: var(--space-3);
@@ -452,9 +452,9 @@
 }
 
 .btn-copy {
-  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
-  color: var(--bg-primary);
-  border: none;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-5);
   font-size: 14px;
@@ -466,8 +466,8 @@
   min-width: 90px;
 }
 .btn-copy:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-button);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .share-url-hint {

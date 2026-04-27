@@ -31,6 +31,8 @@ const MultiTakeVideoRecorder = ({ script: scriptProp, manualScript }) => {
   const [downloadCounter, setDownloadCounter] = useState(1);
   const [countdown, setCountdown] = useState(null);
   const [showTeleprompter, setShowTeleprompter] = useState(false);
+  const [shareUrl, setShareUrl] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -182,10 +184,10 @@ const MultiTakeVideoRecorder = ({ script: scriptProp, manualScript }) => {
 
         // Fire-and-forget upload — UI stays responsive, next take can start immediately.
         saveTakeToSupabase(newTake)
-          .then(({ dbId }) => {
+          .then(({ dbId, storagePath }) => {
             setTakes(prev => prev.map(t =>
               t.id === takeId
-                ? { ...t, saveStatus: 'saved', dbId, saveError: null }
+                ? { ...t, saveStatus: 'saved', dbId, storagePath, saveError: null }
                 : t
             ));
           })
@@ -439,8 +441,39 @@ const MultiTakeVideoRecorder = ({ script: scriptProp, manualScript }) => {
     setTimeRemaining(60);
   };
 
+  const getShareUrl = (take) => {
+    if (!take.storagePath) return;
+
+    const { data } = supabase.storage
+      .from('videos')
+      .getPublicUrl(take.storagePath);
+
+    setShareUrl(data.publicUrl);
+    setCopied(false);
+  };
+
+  const copyShareUrl = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    }
+  };
+
   const selectTake = (take) => {
     setSelectedTake(take);
+    setShareUrl(null);
+    setCopied(false);
     // Force video reload
     setTimeout(() => {
       const videoEl = document.querySelector('video[controls]');
@@ -646,10 +679,36 @@ const MultiTakeVideoRecorder = ({ script: scriptProp, manualScript }) => {
             <button onClick={() => downloadTake(selectedTake)} className="btn-primary">
               Download
             </button>
+            {selectedTake.saveStatus === 'saved' && (
+              <button onClick={() => getShareUrl(selectedTake)} className="btn-secondary">
+                🔗 Get Video Link
+              </button>
+            )}
             <button onClick={recordAnother} className="btn-secondary">
               Record Another
             </button>
           </div>
+
+          {shareUrl && (
+            <div className="recorder-share-section">
+              <p className="recorder-share-label">Video Link</p>
+              <div className="recorder-share-row">
+                <input
+                  type="text"
+                  value={shareUrl}
+                  readOnly
+                  className="recorder-share-input"
+                  onClick={(e) => e.target.select()}
+                />
+                <button onClick={copyShareUrl} className="recorder-share-copy">
+                  {copied ? '✓ Copied' : 'Copy'}
+                </button>
+              </div>
+              <p className="recorder-share-hint">
+                Paste this link anywhere to share your video — social media, messages, or email.
+              </p>
+            </div>
+          )}
 
           <p className="recorder-hint">
             Next: PresentationCoach_{user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}_{String(downloadCounter).padStart(3, '0')}.webm

@@ -373,3 +373,66 @@
 .recorder-take-delete:focus-visible {
   box-shadow: 0 0 0 2px var(--accent);
 }
+
+.recorder-share-section {
+  margin-top: var(--space-4);
+  padding: var(--space-5);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  animation: fadeIn 0.3s;
+}
+.recorder-share-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-3);
+  font-family: var(--font-body);
+}
+.recorder-share-row {
+  display: flex;
+  gap: var(--space-2);
+}
+.recorder-share-input {
+  flex: 1;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recorder-share-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.recorder-share-copy {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 90px;
+}
+.recorder-share-copy:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.recorder-share-hint {
+  margin-top: var(--space-3);
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+}
