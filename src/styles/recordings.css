@@ -390,6 +390,93 @@
   color: var(--accent);
 }
 
+.btn-share-guide {
+  flex: 1;
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-share-guide:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.share-url-section {
+  margin-top: var(--space-6);
+  padding: var(--space-5);
+  background: var(--bg-elevated);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  animation: fadeIn 0.3s;
+}
+
+.share-url-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-3);
+  font-family: var(--font-body);
+}
+
+.share-url-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.share-url-input {
+  flex: 1;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.share-url-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.btn-copy {
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+  color: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-5);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 90px;
+}
+.btn-copy:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button);
+}
+
+.share-url-hint {
+  margin-top: var(--space-3);
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+}
+
 @media (max-width: 767px) {
   .recordings {
     padding: var(--space-6) var(--space-4) 100px;
@@ -410,5 +497,8 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-2);
+  }
+  .share-url-row {
+    flex-direction: column;
   }
 }

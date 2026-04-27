@@ -20,6 +20,8 @@ export default function Recordings() {
   const [selectedRecording, setSelectedRecording] = useState(null);
   const [loading, setLoading] = useState(true);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [shareUrl, setShareUrl] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchRecordings();
@@ -58,7 +60,9 @@ export default function Recordings() {
 
   const selectRecording = async (recording) => {
     setSelectedRecording(recording);
-    
+    setShareUrl(null);
+    setCopied(false);
+
     // Fetch video from Supabase storage
     try {
       const { data, error } = await supabase.storage
@@ -96,6 +100,39 @@ export default function Recordings() {
     } catch (err) {
       console.error('Download error:', err);
       alert('Failed to download video');
+    }
+  };
+
+  const generateShareUrl = async (recording) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('videos')
+        .createSignedUrl(recording.storage_path, 60 * 60 * 24);
+
+      if (error) throw error;
+      setShareUrl(data.signedUrl);
+      setCopied(false);
+    } catch (err) {
+      console.error('Error generating share URL:', err);
+      alert('Failed to generate video link');
+    }
+  };
+
+  const copyShareUrl = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
     }
   };
 
@@ -227,7 +264,7 @@ export default function Recordings() {
           </div>
         ) : (
           <div className="playback-view">
-            <button onClick={() => { setSelectedRecording(null); setVideoUrl(null); }} className="back-btn">
+            <button onClick={() => { setSelectedRecording(null); setVideoUrl(null); setShareUrl(null); setCopied(false); }} className="back-btn">
               ← Back to All Recordings
             </button>
 
@@ -271,16 +308,40 @@ export default function Recordings() {
                   <button onClick={() => downloadRecording(selectedRecording)} className="btn-download">
                     Download
                   </button>
-                  <button onClick={() => navigate('/share')} className="btn-share">
-                    📤 Share
+                  <button onClick={() => generateShareUrl(selectedRecording)} className="btn-share">
+                    🔗 Get Video Link
                   </button>
-                  <button 
+                  <button onClick={() => navigate('/share')} className="btn-share-guide">
+                    📤 Share Guide
+                  </button>
+                  <button
                     onClick={() => toggleFinalStatus(selectedRecording)}
                     className={`btn-final ${selectedRecording.status === 'final' ? 'active' : ''}`}
                   >
                     {selectedRecording.status === 'final' ? 'Unmark as Final' : 'Mark as Final'}
                   </button>
                 </div>
+
+                {shareUrl && (
+                  <div className="share-url-section">
+                    <p className="share-url-label">Video Link (expires in 24 hours)</p>
+                    <div className="share-url-row">
+                      <input
+                        type="text"
+                        value={shareUrl}
+                        readOnly
+                        className="share-url-input"
+                        onClick={(e) => e.target.select()}
+                      />
+                      <button onClick={copyShareUrl} className="btn-copy">
+                        {copied ? '✓ Copied' : 'Copy'}
+                      </button>
+                    </div>
+                    <p className="share-url-hint">
+                      Paste this link anywhere to share your video — social media, messages, or email.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
