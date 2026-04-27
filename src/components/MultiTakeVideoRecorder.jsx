@@ -15,13 +15,13 @@ import Teleprompter from './Teleprompter';
 import CoachingFeedback from './CoachingFeedback';
 import '../styles/recorder.css';
 
-const MultiTakeVideoRecorder = () => {
+const MultiTakeVideoRecorder = ({ script: scriptProp, manualScript }) => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
 
-  // Get script
-  const scriptData = location.state?.script;
-  const script = typeof scriptData === 'string' ? scriptData : scriptData?.script_text || '';
+  // Get script from props (Record page) or location state (Dashboard navigation)
+  const scriptData = scriptProp || location.state?.script;
+  const script = manualScript || (typeof scriptData === 'string' ? scriptData : scriptData?.script_text || '');
 
   const [isRecording, setIsRecording] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);

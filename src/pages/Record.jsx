@@ -219,7 +219,7 @@ export default function Record() {
           </div>
 
           {/* Video Recorder */}
-          <MultiTakeVideoRecorder script={passedScript} />
+          <MultiTakeVideoRecorder script={passedScript} manualScript={script} />
         </div>
       </div>
 
