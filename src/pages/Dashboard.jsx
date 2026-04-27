@@ -19,6 +19,8 @@ export default function Dashboard() {
   const [scripts, setScripts] = useState([])
   const [recordings, setRecordings] = useState([])
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [renamingId, setRenamingId] = useState(null)
+  const [renameValue, setRenameValue] = useState('')
 
   console.log('🔵 Dashboard loaded')
   console.log('🔵 User:', user)
@@ -72,6 +74,22 @@ export default function Dashboard() {
 
     fetchData()
   }, [user])
+
+  const handleRename = async (script) => {
+    const newTitle = renameValue.trim()
+    if (!newTitle || newTitle === (script.title || '')) {
+      setRenamingId(null)
+      return
+    }
+    const { error } = await supabase
+      .from('scripts')
+      .update({ title: newTitle })
+      .eq('id', script.id)
+    if (!error) {
+      setScripts(scripts.map(s => s.id === script.id ? { ...s, title: newTitle } : s))
+    }
+    setRenamingId(null)
+  }
 
   const getUserName = () => {
     if (!user?.email) return 'there'
@@ -141,9 +159,31 @@ export default function Dashboard() {
                   {scripts.map(script => (
                     <div key={script.id} className="dash-item">
                       <div className="dash-item-info">
-                      <div className="dash-item-title">
-                        Script #{scripts.length - scripts.indexOf(script)}
-                      </div>
+                        {renamingId === script.id ? (
+                          <input
+                            className="dash-rename-input"
+                            value={renameValue}
+                            autoFocus
+                            onChange={e => setRenameValue(e.target.value)}
+                            onBlur={() => handleRename(script)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') handleRename(script)
+                              if (e.key === 'Escape') setRenamingId(null)
+                            }}
+                          />
+                        ) : (
+                          <div
+                            className="dash-item-title dash-item-title-editable"
+                            onClick={() => {
+                              setRenamingId(script.id)
+                              setRenameValue(script.title || `Script #${scripts.length - scripts.indexOf(script)}`)
+                            }}
+                            title="Click to rename"
+                          >
+                            {script.title || `Script #${scripts.length - scripts.indexOf(script)}`}
+                            <span className="dash-rename-icon">✏️</span>
+                          </div>
+                        )}
                         <div className="dash-item-date">
                           {new Date(script.created_at).toLocaleDateString()}
                         </div>
@@ -158,19 +198,13 @@ export default function Dashboard() {
                         <button
                           className="dash-item-btn dash-item-btn-delete"
                           onClick={async () => {
-                            if (!window.confirm('Delete this script?')) return;
-
+                            if (!window.confirm('Delete this script?')) return
                             const { error } = await supabase
                               .from('scripts')
                               .delete()
-                              .eq('id', script.id);
-
-                            if (error) {
-                              alert('Error deleting script');
-                              return;
-                            }
-
-                            setScripts(scripts.filter(s => s.id !== script.id));
+                              .eq('id', script.id)
+                            if (error) { alert('Error deleting script'); return }
+                            setScripts(scripts.filter(s => s.id !== script.id))
                           }}
                         >
                           🗑️
