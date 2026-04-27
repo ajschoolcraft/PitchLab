@@ -37,7 +37,7 @@ export default function Record() {
     <>
       <style>{`
         .record-checklist {
-          background: #2c2f3e;
+          background: var(--bg-surface);
           border-radius: 20px;
           border: 1px solid rgba(255, 255, 255, 0.08);
           padding: 24px;
@@ -92,7 +92,7 @@ export default function Record() {
           border: 1.5px solid ${'{checked ? "rgba(212, 165, 116, 0.3)" : "rgba(255, 255, 255, 0.08)"}'};
           cursor: pointer;
           transition: all 0.2s ease;
-          background: ${'{checked ? "rgba(212, 165, 116, 0.1)" : "#23263a"}'};
+          background: ${'{checked ? "rgba(212, 165, 116, 0.1)" : "var(--bg-surface)"}'};
           user-select: none;
         }
         .record-checklist-item:hover { 
@@ -179,7 +179,7 @@ export default function Record() {
                   className="record-checklist-item"
                   style={{
                     borderColor: checked[item.id] ? 'rgba(212, 165, 116, 0.3)' : 'rgba(255, 255, 255, 0.08)',
-                    background: checked[item.id] ? 'rgba(212, 165, 116, 0.1)' : '#23263a',
+                    background: checked[item.id] ? 'rgba(212, 165, 116, 0.1)' : 'var(--bg-surface)',
                   }}
                   onClick={() => toggle(item.id)}
                 >

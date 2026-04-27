@@ -93,7 +93,7 @@ export default function Dashboard() {
 
   const getUserName = () => {
     if (!user?.email) return 'there'
-    const name = user.user_metadata.full_name
+    const name = user.user_metadata?.full_name || user.email.split('@')[0]
     return name.charAt(0).toUpperCase() + name.slice(1)
   }
 
