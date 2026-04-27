@@ -103,19 +103,13 @@ export default function Recordings() {
     }
   };
 
-  const generateShareUrl = async (recording) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('videos')
-        .createSignedUrl(recording.storage_path, 60 * 60 * 24);
+  const generateShareUrl = (recording) => {
+    const { data } = supabase.storage
+      .from('videos')
+      .getPublicUrl(recording.storage_path);
 
-      if (error) throw error;
-      setShareUrl(data.signedUrl);
-      setCopied(false);
-    } catch (err) {
-      console.error('Error generating share URL:', err);
-      alert('Failed to generate video link');
-    }
+    setShareUrl(data.publicUrl);
+    setCopied(false);
   };
 
   const copyShareUrl = async () => {
@@ -324,7 +318,7 @@ export default function Recordings() {
 
                 {shareUrl && (
                   <div className="share-url-section">
-                    <p className="share-url-label">Video Link (expires in 24 hours)</p>
+                    <p className="share-url-label">Video Link</p>
                     <div className="share-url-row">
                       <input
                         type="text"
