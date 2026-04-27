@@ -142,3 +142,29 @@
   .scriptgen-buttons .btn-primary,
   .scriptgen-buttons .btn-secondary { width: 100%; }
 }
+
+/* Word Count Meta Bar */
+.scriptgen-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #FAFAFA;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.scriptgen-meta-item {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+}
+.scriptgen-meta-tip {
+  color: #374151;
+  font-weight: 600;
+}
+.scriptgen-meta-divider {
+  color: #d1d5db;
+  font-size: 13px;
+}
