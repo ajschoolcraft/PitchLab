@@ -104,6 +104,11 @@ function MobileDrawer({ open, onClose, user, onLogout, navigate, firstLinkRef })
         aria-modal="true"
         aria-label="Navigation menu"
       >
+        <div className="drawer-brand" onClick={() => { navigate('/dashboard'); onClose(); }}>
+          <img src="/pitchlab-icon.png" alt="PitchLab" className="drawer-brand-icon" />
+          <span className="drawer-brand-name">PitchLab</span>
+        </div>
+
         <div className="drawer-header">
           <div className="drawer-avatar">{initial}</div>
           <div className="drawer-user-email">{user?.email}</div>
