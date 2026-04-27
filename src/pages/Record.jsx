@@ -89,15 +89,15 @@ export default function Record() {
           gap: 10px;
           padding: 12px 14px;
           border-radius: 12px;
-          border: 1.5px solid ${'{checked ? "rgba(59, 130, 246, 0.3)" : "rgba(255, 255, 255, 0.08)"}'};
+          border: 1.5px solid ${'{checked ? "rgba(212, 165, 116, 0.3)" : "rgba(255, 255, 255, 0.08)"}'};
           cursor: pointer;
           transition: all 0.2s ease;
-          background: ${'{checked ? "rgba(59, 130, 246, 0.12)" : "#23263a"}'};
+          background: ${'{checked ? "rgba(212, 165, 116, 0.1)" : "#23263a"}'};
           user-select: none;
         }
         .record-checklist-item:hover { 
-          border-color: rgba(59, 130, 246, 0.4);
-          background: rgba(59, 130, 246, 0.08);
+          border-color: rgba(212, 165, 116, 0.5);
+          background: rgba(212, 165, 116, 0.05);
         }
         .record-check-box {
           width: 20px;
@@ -178,8 +178,8 @@ export default function Record() {
                   key={item.id}
                   className="record-checklist-item"
                   style={{
-                    borderColor: checked[item.id] ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255, 255, 255, 0.08)',
-                    background: checked[item.id] ? 'rgba(59, 130, 246, 0.12)' : '#23263a',
+                    borderColor: checked[item.id] ? 'rgba(212, 165, 116, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                    background: checked[item.id] ? 'rgba(212, 165, 116, 0.1)' : '#23263a',
                   }}
                   onClick={() => toggle(item.id)}
                 >
