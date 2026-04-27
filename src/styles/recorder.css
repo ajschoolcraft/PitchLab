@@ -250,24 +250,6 @@
   color: #ff4444;
   font-size: 14px;
 }
-.recorder-stop-floating {
-  position: fixed;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 14px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-body);
-  box-shadow: 0 6px 28px rgba(220, 53, 69, 0.6);
-  z-index: 10002;
-  pointer-events: auto;
-}
 
 /* ---- Take review: rich rows with status + delete ---- */
 .recorder-take-row {
