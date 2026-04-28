@@ -11,7 +11,7 @@ import '../styles/help.css';
 export default function Help() {
   const navigate = useNavigate();
 
-  const supportEmail = 'support@presentationcoach.example';
+  const supportEmail = 'maya.mukherjee11@gmail.com';
 
   const faqs = [
     {
