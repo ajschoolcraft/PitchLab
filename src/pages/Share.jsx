@@ -6,7 +6,6 @@ export default function Share() {
   const navigate = useNavigate()
   const [selectedPlatform, setSelectedPlatform] = useState(null)
   const [shareStatus, setShareStatus] = useState('')
-  const canShare = typeof navigator !== 'undefined' && !!navigator.share
 
   const handleNativeShare = async () => {
     try {
