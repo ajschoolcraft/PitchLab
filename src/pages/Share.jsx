@@ -38,11 +38,11 @@ export default function Share() {
             <div className="share-native-left">
               <div className="share-native-icon">📲</div>
               <div>
-                <p className="share-native-title">Share Directly from Your Phone</p>
-                <p className="share-native-desc">Opens your native share sheet instantly</p>
+                <p className="share-native-title">Share PitchLab</p>
+                <p className="share-native-desc">Download your video from Recordings first, then share to any app</p>
               </div>
             </div>
-            <button className="share-native-btn" onClick={handleNativeShare}>Share Now</button>
+            <button className="share-native-btn" onClick={handleNativeShare}>Share App →</button>
           </div>
         )}
         {shareStatus && <p className="share-status">{shareStatus}</p>}
