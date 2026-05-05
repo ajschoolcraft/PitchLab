@@ -1,14 +1,16 @@
-# AI Presentation Coach
+# PitchLab
 
 > An AI-powered web app that helps entrepreneurs, small business owners, and job seekers craft compelling pitch scripts and practice delivering them on camera.
 
 Built as a senior capstone project at **Loyola Marymount University** (ISBA 2026) by A.J. Schoolcraft, Joaquin Crespo, and Emma Sprankle.
 
+Originally developed at [github.com/joaquincrespo37/PitchLab](https://github.com/joaquincrespo37/PitchLab) as a team project.
+
 ---
 
 ## What It Does
 
-Most small business owners know their product inside and out — but freeze when they try to explain it on camera. AI Presentation Coach solves this by combining **AI script generation** with a **multi-take recording studio**, so users go from "I don't know what to say" to a polished video in minutes.
+Most small business owners know their product inside and out — but freeze when they try to explain it on camera. PitchLab solves this by combining **AI script generation** with a **multi-take recording studio**, so users go from "I don't know what to say" to a polished video in minutes.
 
 ### Core Features
 
@@ -116,8 +118,8 @@ api/
 ### Installation
 
 ```bash
-git clone https://github.com/ajschoolcraft/AI-Presentation-Coach.git
-cd AI-Presentation-Coach
+git clone https://github.com/ajschoolcraft/PitchLab.git
+cd PitchLab
 npm install
 ```
 
