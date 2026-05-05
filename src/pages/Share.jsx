@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Social sharing guide page.
+ * Displays platform-specific step-by-step instructions for uploading
+ * videos to Instagram, TikTok, YouTube, and Facebook. Includes pro tips
+ * for each platform to help users maximize engagement.
+ */
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/share.css'

@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Coaching feedback display component.
+ * Renders a styled card that attempts to fetch feedback from /api/coaching-feedback
+ * after a take is saved. Displays three categories: what landed, what to tighten,
+ * and one specific tip. Note: the API endpoint is not yet implemented.
+ */
+
 import { useState, useEffect } from 'react'
 
 export default function CoachingFeedback({ take, script }) {
